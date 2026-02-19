@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/v0.1/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/v0.1/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -124,7 +121,7 @@
       <option name="presentableId" value="Default" />
       <updated>1771447037027</updated>
       <workItem from="1771447038058" duration="2089000" />
-      <workItem from="1771517277124" duration="4094000" />
+      <workItem from="1771517277124" duration="6610000" />
     </task>
     <servers />
   </component>
