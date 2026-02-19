@@ -65,7 +65,7 @@ Official reference: https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Wor
 ---
 
 #### T001 — Initialize Poetry Project
-**Status**: [TODO]
+**Status**: [REVIEW]
 **Estimate**: 2 hours
 **Branch**: `feature/T001-poetry-setup`
 
