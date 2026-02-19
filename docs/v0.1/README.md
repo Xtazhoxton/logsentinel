@@ -65,7 +65,7 @@ Official reference: https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Wor
 ---
 
 #### T001 — Initialize Poetry Project
-**Status**: [TODO]
+**Status**: [FAILED]
 **Estimate**: 2 hours
 **Branch**: `feature/T001-poetry-setup`
 
@@ -90,6 +90,11 @@ Initialize a new Poetry project named `logsentinel` targeting Python `^3.13`. Ad
 - [ ] `poetry run python --version` outputs Python 3.13.x
 - [ ] `.gitignore` excludes `.venv/`, `__pycache__/`, `*.pyc`, `.coverage`, `dist/`
 - [ ] `.venv/` is NOT committed
+
+> **[FAILED]** — Three criteria fail:
+> 1. `typer[all]` and `rich` are not under `[tool.poetry.dependencies]`. You used Poetry 2.x format (`[project]` table), which uses different section names than the ones the criteria require. The criteria were written for Poetry 1.x. You need to either reconcile with your Poetry version's actual format, or understand the difference — look up what changed between Poetry 1.x and 2.x, specifically around the `[project]` vs `[tool.poetry]` tables and `[dependency-groups]` vs `[tool.poetry.group.dev.dependencies]`.
+> 2. Same issue for `pytest`/`pytest-cov`: they are in `[dependency-groups]`, not `[tool.poetry.group.dev.dependencies]`.
+> 3. `.gitignore` has a typo on line 2: `__pychache__` → should be `__pycache__`. As written, `__pycache__` directories are **not** being ignored. This will lead to compiled bytecode getting committed.
 
 ---
 
@@ -430,7 +435,7 @@ Resources:
 
 | ID | Title | Status | Estimate |
 |----|-------|--------|----------|
-| T001 | Initialize Poetry Project | [TODO] | 2h |
+| T001 | Initialize Poetry Project | [FAILED] | 2h |
 | T002 | Set Up Project Structure | [TODO] | 1h |
 | T003 | LogEntry and LogLevel Models | [TODO] | 3h |
 | T004 | AWS CloudWatch JSON Parser | [TODO] | 4h |
