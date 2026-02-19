@@ -65,7 +65,7 @@ Official reference: https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Wor
 ---
 
 #### T001 — Initialize Poetry Project
-**Status**: [FAILED]
+**Status**: [DONE]
 **Estimate**: 2 hours
 **Branch**: `feature/T001-poetry-setup`
 
@@ -433,16 +433,16 @@ Resources:
 
 ## Task Summary
 
-| ID | Title | Status | Estimate |
-|----|-------|--------|----------|
-| T001 | Initialize Poetry Project | [FAILED] | 2h |
-| T002 | Set Up Project Structure | [TODO] | 1h |
-| T003 | LogEntry and LogLevel Models | [TODO] | 3h |
-| T004 | AWS CloudWatch JSON Parser | [TODO] | 4h |
-| T005 | CLI Skeleton with Typer | [TODO] | 3h |
-| T006 | Wire Parse Command to Parser and Formatter | [TODO] | 3h |
-| T007 | Log Level Filter | [TODO] | 2h |
-| T008 | Keyword Search Filter | [TODO] | 2h |
-| T009 | Pytest Configuration and GitHub Actions CI | [TODO] | 2h |
+| ID | Title | Status   | Estimate |
+|----|-------|----------|----------|
+| T001 | Initialize Poetry Project | [DONE]   | 2h |
+| T002 | Set Up Project Structure | [TODO]   | 1h |
+| T003 | LogEntry and LogLevel Models | [TODO]   | 3h |
+| T004 | AWS CloudWatch JSON Parser | [TODO]   | 4h |
+| T005 | CLI Skeleton with Typer | [TODO]   | 3h |
+| T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
+| T007 | Log Level Filter | [TODO]   | 2h |
+| T008 | Keyword Search Filter | [TODO]   | 2h |
+| T009 | Pytest Configuration and GitHub Actions CI | [TODO]   | 2h |
 
 **Total estimate**: ~22 hours (~3 days full-time)
