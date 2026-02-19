@@ -29,7 +29,7 @@ All v0.1 tasks and specifications: see `docs/v0.1/README.md`.
 
 ## GitHub Repository
 
-**URL**: `[USER: ADD YOUR REPO URL HERE]`
+**URL**: `https://github.com/Xtazhoxton/logsentinel`
 
 Branch convention: `feature/T{id}-short-description` — example: `feature/T001-poetry-setup`
 
