@@ -1,22 +1,25 @@
 # LogSentinel
 
-> A log analysis and monitoring tool — built progressively in Python.
+> Stop searching through logs. Start reading what happened.
 
-LogSentinel reads, parses, filters, and displays logs from various sources. Built phase by phase, starting from a simple CLI tool and evolving toward a full-stack application with machine learning capabilities.
+LogSentinel transforms raw, fragmented log streams into **readable execution narratives**. It groups events that belong to the same workflow, reconstructs what happened step by step, and surfaces failures without requiring you to know what to search for.
+
+Built for event-driven architectures (AWS Step Functions, Lambda, EventBridge) where a single user action generates dozens of correlated log entries spread across multiple log groups. Built progressively in Python as a learning project, from CLI tool to ML-powered platform.
 
 ---
 
 ## Project Phases
 
-| Phase | Version | Status | Description |
-|-------|---------|--------|-------------|
-| POC | v0.1 | 🔵 In progress | CLI tool — parse AWS CloudWatch JSON logs from a local file |
-| CLI Extended | v0.2 | ⬜ Planned | Multiple log formats, live file tailing, CSV/JSON export |
-| API Backend | v1.0 | ⬜ Planned | REST API with FastAPI, persistent storage, query endpoints |
-| Web UI | v2.0 | ⬜ Planned | Django-based web interface |
-| ML Parsing | v3.0 | ⬜ Planned | Automatic log format detection and ML-powered field extraction |
+| Phase | Version | Status | What it solves |
+|-------|---------|--------|----------------|
+| POC | v0.1 | 🔵 In progress | Parse CloudWatch logs locally, filter by level/keyword, display in a readable table. Lay the domain model foundation (`LogEntry` with `correlation_id`). |
+| Correlation | v0.2 | ⬜ Planned | Group log entries into `Trace` objects by workflow execution. Reconstruct Step Functions timelines. View an entire workflow as a single readable narrative. |
+| Intelligence | v0.3 | ⬜ Planned | Extract log templates automatically (Drain algorithm). Detect statistical anomalies. Alert on patterns that precede failures — no external ML services, no LLMs. |
+| Platform | v1.0 | ⬜ Planned | REST API (FastAPI), real-time log ingestion, persistent storage. LogSentinel becomes a service, not just a CLI. |
+| Web UI | v2.0 | ⬜ Planned | Dashboard, visual workflow timelines, incident history. |
+| ML | v3.0 | ⬜ Planned | Automatic format detection for unknown log sources. Sequence anomaly detection (what execution path is abnormal?). Root cause suggestions. All built with Python ML libraries, no external APIs. |
 
-**Future input sources to evaluate** (not yet scoped — revisit at the start of each phase): stdin/pipe, remote SSH, S3 buckets, live CloudWatch Logs API streaming.
+**Future input sources** (not yet scoped — revisit at the start of each phase): stdin/pipe, S3 buckets, live CloudWatch Logs API streaming, remote SSH.
 
 ---
 
@@ -35,6 +38,8 @@ LogSentinel reads, parses, filters, and displays logs from various sources. Buil
 | CLI framework | [Typer](https://typer.tiangolo.com/) | Type-hint-driven CLI, built on Click |
 | Terminal output | [Rich](https://rich.readthedocs.io/) | Tables, colors, formatted output |
 | Testing | [pytest](https://docs.pytest.org/) + [pytest-cov](https://pytest-cov.readthedocs.io/) | Standard Python testing + coverage |
+| Linting + formatting | [ruff](https://docs.astral.sh/ruff/) | Fast linter + formatter (replaces flake8 + black + isort) |
+| Type checking | [mypy](https://mypy.readthedocs.io/) | Static type checker, enforces type hints at development time |
 
 ---
 
@@ -95,6 +100,15 @@ logsentinel/
     └── fixtures/         — static sample log files
 ```
 
+### Core Domain Concepts
+
+| Concept | Description | Introduced |
+|---------|-------------|-----------|
+| `LogEntry` | A single log event. Has a `correlation_id` field from the start to support grouping. | v0.1 |
+| `Trace` | A group of `LogEntry` objects belonging to the same workflow execution (same Step Functions `executionId`, same request, etc.). The primary unit of analysis. | v0.2 |
+| `LogPattern` | A template extracted from a family of similar messages, e.g. `"Connection to {IP} failed after {N} retries"`. Enables anomaly detection at the pattern level. | v0.3 |
+| `Anomaly` | A `LogEntry` or `Trace` that deviates statistically from known patterns. | v0.3 |
+
 ### Module Responsibilities
 
 | Module | Responsibility | Must NOT contain |
@@ -107,6 +121,8 @@ logsentinel/
 | `utils/` | Pure shared helpers (no side effects) | State, I/O, CLI |
 
 **Dependency direction**: `cli` → `parsers`, `filters`, `formatters` → `models`. Nothing in `models/` imports from elsewhere in the package.
+
+**Parser protocol**: `parsers/base.py` defines a `Parser` protocol (structural interface) that all parsers implement. The CLI depends on `Parser`, not on `CloudWatchParser` — adding a new format means adding a new file, not modifying existing code.
 
 **Adding a new log format**: add a new file in `parsers/` — never modify existing parsers.
 
