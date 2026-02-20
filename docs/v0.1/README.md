@@ -15,6 +15,7 @@ By the end of v0.1 you will know how to:
 - Manage a Python project with Poetry (dependencies, virtual envs, scripts)
 - Structure a Python package using the `src/` layout
 - Use type hints, dataclasses, and enums from the standard library
+- Design a domain model that anticipates future requirements (`correlation_id` for v0.2 grouping)
 - Parse JSON and work with files using `pathlib`
 - Use regular expressions for pattern extraction
 - Build a typed CLI with Typer
@@ -99,7 +100,7 @@ Initialize a new Poetry project named `logsentinel` targeting Python `^3.13`. Ad
 ---
 
 #### T002 — Set Up Project Structure
-**Status**: [TODO]
+**Status**: [DONE]
 **Estimate**: 1 hour
 **Branch**: `feature/T002-project-structure`
 **Blocked by**: T001
@@ -173,6 +174,11 @@ Resources:
 - https://docs.python.org/3/library/enum.html
 - https://docs.python.org/3/library/datetime.html — read the section on "aware" vs "naive" datetime objects
 
+**Why `correlation_id` now?**
+`correlation_id` is the key that will allow v0.2 to group `LogEntry` objects into `Trace` objects — a full workflow execution. For AWS Step Functions, this will be the `executionId`. For Lambda, it could be the `requestId` or an X-Ray trace ID.
+
+We introduce the field in v0.1 even though grouping is a v0.2 feature, because adding it later means migrating the data model and all existing tests. It costs almost nothing now. It costs a lot later.
+
 **Interface to implement**
 
 ```python
@@ -185,13 +191,14 @@ class LogLevel(Enum):
 
 @dataclass(frozen=True)
 class LogEntry:
-    timestamp: datetime      # must always be timezone-aware (UTC)
+    timestamp: datetime           # must always be timezone-aware (UTC)
     level: LogLevel
     message: str
-    source: str              # log group name or filename
-    raw: str                 # original unparsed string — excluded from equality
-    request_id: str | None   # AWS RequestId if present — excluded from equality
-    metadata: dict           # extra key-value pairs — excluded from equality
+    source: str                   # log group name or filename
+    correlation_id: str | None    # groups entries belonging to the same workflow execution — excluded from equality
+    raw: str                      # original unparsed string — excluded from equality
+    request_id: str | None        # AWS RequestId if present — excluded from equality
+    metadata: dict                # extra key-value pairs — excluded from equality
 
     def is_error(self) -> bool: ...
 ```
@@ -200,11 +207,11 @@ class LogEntry:
 - [ ] `LogLevel` is an `Enum` with `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, `UNKNOWN`
 - [ ] `LogLevel` members have integer values reflecting severity (`DEBUG` lowest, `CRITICAL` highest)
 - [ ] `LogEntry` is a frozen dataclass
-- [ ] `raw`, `request_id`, and `metadata` are excluded from `__eq__` comparisons
+- [ ] `correlation_id`, `raw`, `request_id`, and `metadata` are excluded from `__eq__` comparisons
 - [ ] `is_error()` returns `True` only for `ERROR` and `CRITICAL`
 - [ ] `timestamp` is always a timezone-aware `datetime` — the model should make it impossible to create a `LogEntry` with a naive datetime (raise `ValueError`)
 - [ ] Tests are in `tests/unit/test_log_entry.py`
-- [ ] Tests cover: valid creation, equality ignores `raw`/`request_id`/`metadata`, `is_error()` for all 6 levels, naive datetime raises `ValueError`
+- [ ] Tests cover: valid creation, equality ignores `correlation_id`/`raw`/`request_id`/`metadata`, `is_error()` for all 6 levels, naive datetime raises `ValueError`
 
 ---
 
@@ -245,7 +252,24 @@ Create `tests/fixtures/cloudwatch_sample.json` with this content (commit it):
 }
 ```
 
+**Why a Parser Protocol?**
+Python's `typing.Protocol` enables structural subtyping — duck typing with type safety. If a class implements the right methods with the right signatures, it satisfies the protocol without any explicit declaration. This is the direct equivalent of a TypeScript `interface`.
+
+Without a protocol, `CloudWatchParser` is a standalone class. The CLI would depend on it directly, and adding a new format in v0.2 would require modifying the CLI. With a `Parser` protocol, the CLI depends only on the *contract* (`Parser`), not on the *implementation* (`CloudWatchParser`) — adding a new format is extension, not modification.
+
+TypeScript parallel: `Parser` protocol ≈ TypeScript `interface Parser { parseFile(...): LogEntry[]; parseString(...): LogEntry[]; }`
+
+Resources:
+- https://docs.python.org/3/library/typing.html#typing.Protocol
+
 **Interface to implement**
+
+```python
+# src/logsentinel/parsers/base.py
+class Parser(Protocol):
+    def parse_file(self, path: Path) -> list[LogEntry]: ...
+    def parse_string(self, content: str) -> list[LogEntry]: ...
+```
 
 ```python
 # src/logsentinel/parsers/cloudwatch.py
@@ -270,6 +294,8 @@ class CloudWatchParser:
 - [ ] `parse_file` raises `ValueError` with a descriptive message if `logEvents` key is missing
 - [ ] `tests/fixtures/cloudwatch_sample.json` is committed
 - [ ] Tests in `tests/unit/test_cloudwatch_parser.py` cover all criteria above, including edge cases: empty `logEvents` array, missing `logGroupName`
+- [ ] `Parser` protocol exists in `src/logsentinel/parsers/base.py`
+- [ ] `mypy` confirms `CloudWatchParser` satisfies the `Parser` protocol (no explicit `implements` needed — structural subtyping)
 
 ---
 
@@ -406,9 +432,9 @@ class SearchFilter:
 
 ---
 
-#### T009 — Pytest Configuration and GitHub Actions CI
+#### T009 — Code Quality: Tests, Linting, and CI
 **Status**: [TODO]
-**Estimate**: 2 hours
+**Estimate**: 3 hours
 **Branch**: `feature/T009-ci`
 **Blocked by**: T008
 
@@ -420,13 +446,29 @@ Resources:
 - https://pytest-cov.readthedocs.io/en/latest/config.html
 - https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-python
 
+**What are ruff and mypy?**
+`ruff` is a linter and formatter in one tool, written in Rust — extremely fast. It replaces three separate tools: `flake8` (linting), `isort` (import sorting), and `black` (formatting). TypeScript parallel: ruff ≈ ESLint + Prettier combined.
+
+`mypy` is a static type checker. It reads your type hints and catches type errors before runtime — the same safety net TypeScript's compiler gives you. TypeScript parallel: mypy ≈ `tsc --noEmit`.
+
+Why set these up from the start: adding linting and type checking retroactively to an existing codebase is painful and demoralizing. Start with a high bar and maintain it from commit one.
+
+Resources:
+- https://docs.astral.sh/ruff/
+- https://mypy.readthedocs.io/en/stable/getting_started.html
+
 **Acceptance Criteria**
 - [ ] `[tool.pytest.ini_options]` is in `pyproject.toml` — no separate `pytest.ini`
 - [ ] `testpaths`, `addopts` (with coverage flags), and `pythonpath = ["src"]` are configured
 - [ ] `poetry run pytest` runs the full test suite and shows a coverage summary
 - [ ] Total coverage is ≥ 80%
+- [ ] `ruff` and `mypy` added as dev dependencies
+- [ ] `[tool.ruff]` configured in `pyproject.toml` — target Python version and selected rule sets
+- [ ] `[tool.mypy]` configured in `pyproject.toml` — strict mode enabled
+- [ ] `poetry run ruff check src/` exits 0
+- [ ] `poetry run mypy src/` exits 0
 - [ ] `.github/workflows/ci.yml` triggers on push to any branch
-- [ ] CI workflow: checkout → Python 3.13 → install Poetry → `poetry install` → `poetry run pytest`
+- [ ] CI workflow: checkout → Python 3.13 → install Poetry → `poetry install` → ruff → mypy → `poetry run pytest`
 - [ ] CI passes on the `main` branch
 
 ---
@@ -436,13 +478,13 @@ Resources:
 | ID | Title | Status   | Estimate |
 |----|-------|----------|----------|
 | T001 | Initialize Poetry Project | [DONE]   | 2h |
-| T002 | Set Up Project Structure | [TODO]   | 1h |
+| T002 | Set Up Project Structure | [DONE]   | 1h |
 | T003 | LogEntry and LogLevel Models | [TODO]   | 3h |
 | T004 | AWS CloudWatch JSON Parser | [TODO]   | 4h |
 | T005 | CLI Skeleton with Typer | [TODO]   | 3h |
 | T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
 | T007 | Log Level Filter | [TODO]   | 2h |
 | T008 | Keyword Search Filter | [TODO]   | 2h |
-| T009 | Pytest Configuration and GitHub Actions CI | [TODO]   | 2h |
+| T009 | Code Quality: Tests, Linting, and CI | [TODO]   | 3h |
 
-**Total estimate**: ~22 hours (~3 days full-time)
+**Total estimate**: ~23 hours (~3 days full-time)

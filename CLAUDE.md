@@ -57,3 +57,36 @@ At the start of every session, before anything else:
 | `[REVIEW]` | Developer considers it complete — needs review |
 | `[DONE]` | Reviewed and accepted |
 | `[FAILED]` | Reviewed and rejected — see feedback below the task |
+
+---
+
+## Notion Sync
+
+**Notion workspace**: Arthur Paris — `Dev Projects / LogSentinel`
+
+**README is the source of truth.** Notion is a readable mirror + learning layer. If they conflict, README wins.
+
+**When to sync Notion:**
+- When a task moves to `[DONE]` or `[FAILED]` — update the task status in the Notion spec page
+- When specs change, a new task is added, or a new version spec is created — mirror the changes to Notion
+- Do NOT sync on every small README edit — only at meaningful milestones
+
+**What lives only in Notion (not in READMEs):**
+- The Learning Journal (see below)
+
+---
+
+## Learning Journal
+
+After every task review, update the **Learning Journal** page in Notion (`Dev Projects / LogSentinel / Learning Journal`).
+
+**On `[DONE]`:**
+- Write a short summary (3–6 bullet points) of what the developer learned and practiced during this task
+
+**On `[FAILED]`:**
+- Write a "Mistakes" note listing exactly what went wrong and why
+
+**When a `[FAILED]` task is resubmitted and passes:**
+- Keep the original "Mistakes" note — mark it with a "✓ Resolved" label
+- Add a new "What improved" note below it explaining what changed in understanding or approach
+- This creates a visible growth record: mistake → resolution
