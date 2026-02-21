@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/logsentinel.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/logsentinel.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/v0.1/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/v0.1/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/unit/test_log_entry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit/test_log_entry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +35,10 @@
             <RecentBranchesForRepo>
               <option name="branches">
                 <list>
+                  <RecentBranch>
+                    <option name="branchName" value="feature/T003-log-entry-model" />
+                    <option name="lastUsedInstant" value="1771675312" />
+                  </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="feature/T002-project-structure" />
                     <option name="lastUsedInstant" value="1771527386" />
@@ -81,7 +82,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/T002-project-structure",
+    "git-widget-placeholder": "feature/T003-log-entry-model",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/arthur/Documents/logsentinel",
     "node.js.detected.package.eslint": "true",
@@ -136,7 +137,7 @@
       <option name="presentableId" value="Default" />
       <updated>1771447037027</updated>
       <workItem from="1771447038058" duration="2089000" />
-      <workItem from="1771517277124" duration="23231000" />
+      <workItem from="1771517277124" duration="23896000" />
     </task>
     <servers />
   </component>

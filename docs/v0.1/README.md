@@ -157,7 +157,7 @@ tests/
 ---
 
 #### T003 — LogEntry and LogLevel Models
-**Status**: [REVIEW]
+**Status**: [DONE]
 **Estimate**: 3 hours
 **Branch**: `feature/T003-log-entry-model`
 **Blocked by**: T002
@@ -253,6 +253,11 @@ For a UTC-aware datetime, use `datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.u
 - [ ] `timestamp` is always a timezone-aware `datetime` — the model should make it impossible to create a `LogEntry` with a naive datetime (raise `ValueError`)
 - [ ] Tests are in `tests/unit/test_log_entry.py`
 - [ ] Tests cover: valid creation, equality ignores `correlation_id`/`raw`/`request_id`/`metadata`, `is_error()` for all 6 levels, naive datetime raises `ValueError`
+
+> **[DONE]** — All 8 criteria pass. A few things to be aware of going forward:
+> 1. `UNKNOWN = 60` — this puts UNKNOWN above CRITICAL in integer ordering. The good news: it means UNKNOWN entries automatically pass any severity filter in T007 without needing a special case. The spec says a special case *will* be needed regardless of choice — your value proves that wrong, which is fine. Just be aware in T007 that the "always include UNKNOWN" logic is already handled implicitly.
+> 2. `is_error()` has no `-> bool` return type annotation. When mypy runs in T009 with `strict = true`, it will flag this. Good habit: annotate all method return types now.
+> 3. `from tests.conftest import sample_entry` in the test file is redundant — pytest discovers fixtures from `conftest.py` automatically. Remove this import.
 
 ---
 
@@ -839,7 +844,7 @@ Fix all failures until the green checkmark appears on your branch.
 |----|-------|----------|----------|
 | T001 | Initialize Poetry Project | [DONE]   | 2h |
 | T002 | Set Up Project Structure | [DONE]   | 1h |
-| T003 | LogEntry and LogLevel Models | [TODO]   | 3h |
+| T003 | LogEntry and LogLevel Models | [DONE]   | 3h |
 | T004 | AWS CloudWatch JSON Parser | [TODO]   | 4h |
 | T005 | CLI Skeleton with Typer | [TODO]   | 3h |
 | T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |

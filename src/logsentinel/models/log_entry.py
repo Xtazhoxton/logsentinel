@@ -21,9 +21,9 @@ class LogEntry:
     request_id: str | None = field(compare=False, default=None)
     metadata: dict[str, str] = field(compare=False, default_factory=dict)
 
-    def is_error(self):
+    def is_error(self) -> bool:
         return self.level == LogLevel.ERROR or self.level == LogLevel.CRITICAL
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp.tzinfo is not UTC:
             raise ValueError("timestamp must be in UTC")
