@@ -7,17 +7,22 @@ path = Path(__file__).resolve().parent.parent / "fixtures" / "cloudwatch_sample.
 parser = CloudWatchParser()
 
 def test_parse_file_success(parsed_file):
-    assert len(parsed_file) == 5
+    assert len(parsed_file) == 8
     assert parsed_file[0].level == LogLevel.UNKNOWN
     assert parsed_file[1].level == LogLevel.ERROR
+    assert parsed_file[5].level == LogLevel.WARNING
+    assert parsed_file[2].level == LogLevel.INFO
+    assert parsed_file[6].level == LogLevel.DEBUG
+    assert parsed_file[7].level == LogLevel.CRITICAL
+    assert parsed_file[1].source == "/aws/lambda/my-function"
     assert parsed_file[1].request_id is None
     assert parsed_file[3].request_id == 'req-001'
-    assert [entry.timestamp.tzinfo is not None for entry in parsed_file]
+    assert all([entry.timestamp.tzinfo is not None for entry in parsed_file])
 
 def test_parse_string_success():
     path_content = path.read_text()
     parsed_content = parser.parse_string(path_content)
-    assert len(parsed_content) == 5
+    assert len(parsed_content) == 8
 
 def test_parse_file_failure_on_non_existent_file():
     with pytest.raises(FileNotFoundError):
@@ -29,3 +34,7 @@ def test_parse_string_failure_on_miss_event():
 
 def test_parse_string_return_empty_list():
     assert parser.parse_string('{"logGroupName": "/aws/lambda/my-function","logStreamName": "2024/01/15/[$LATEST]abc123","logEvents": []}') == []
+
+def test_parse_string_with_empty_group_name():
+    content = parser.parse_string('{"logStreamName": "2024/01/15/[$LATEST]abc123","logEvents": [{"id": "001", "timestamp": 1705312245123, "message": "START RequestId: req-001 Version: $LATEST"}]}')
+    assert content[0].source == "unknown"
