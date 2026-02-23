@@ -1,4 +1,6 @@
 from logsentinel.models import LogEntry, LogLevel
+from logsentinel.parsers import CloudWatchParser
+from pathlib import Path
 from datetime import datetime, timezone
 import pytest
 
@@ -11,3 +13,9 @@ def sample_entry():
         source="/aws/lambda/my-function",
         raw="[INFO] Connection established"
     )
+
+@pytest.fixture
+def parsed_file():
+    parser = CloudWatchParser()
+    path = Path(__file__).resolve().parent / "fixtures" / "cloudwatch_sample.json"
+    return parser.parse_file(path)

@@ -1,0 +1,11 @@
+{
+  "logGroupName": "/aws/lambda/my-function",
+  "logStreamName": "2024/01/15/[$LATEST]abc123",
+  "logEvents": [
+    {"id": "001", "timestamp": 1705312245123, "message": "START RequestId: req-001 Version: $LATEST"},
+    {"id": "002", "timestamp": 1705312246000, "message": "[ERROR] 2024-01-15T10:31:00Z req-001 Database connection failed"},
+    {"id": "003", "timestamp": 1705312247000, "message": "[INFO] 2024-01-15T10:31:01Z req-001 Retrying connection..."},
+    {"id": "004", "timestamp": 1705312248000, "message": "END RequestId: req-001"},
+    {"id": "005", "timestamp": 1705312248500, "message": "REPORT RequestId: req-001 Duration: 3400.00 ms Billed Duration: 3400 ms Memory Size: 128 MB Max Memory Used: 89 MB"}
+  ]
+}

@@ -395,7 +395,7 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 - `parse_string` with the same file content returns the same 5 entries (read the fixture file and pass it as a string)
 - The `START` event (id 001) has `level == LogLevel.UNKNOWN`
 - The `[ERROR]` event (id 002) has `level == LogLevel.ERROR`
-- The `[ERROR]` event has `request_id == "req-001"`
+- The `[ERROR]` event has `request_id == None` — applicative logs don't include a `RequestId:` prefix, only Lambda system messages (`START`, `END`, `REPORT`) do
 - The `END` event (id 004) has `request_id == "req-001"`
 - All timestamps are UTC-aware (check `entry.timestamp.tzinfo is not None`)
 - `parse_file` raises `FileNotFoundError` on a non-existent path

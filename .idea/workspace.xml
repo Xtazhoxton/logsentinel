@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/v0.1/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/v0.1/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/logsentinel/models/log_entry.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/models/log_entry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/logsentinel/parsers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/parsers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/unit/test_log_entry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit/test_log_entry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -90,7 +94,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "settings.editor.selected.configurable": "preferences.editor",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -137,7 +141,7 @@
       <option name="presentableId" value="Default" />
       <updated>1771447037027</updated>
       <workItem from="1771447038058" duration="2089000" />
-      <workItem from="1771517277124" duration="23896000" />
+      <workItem from="1771517277124" duration="48106000" />
     </task>
     <servers />
   </component>
