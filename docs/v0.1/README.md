@@ -266,7 +266,7 @@ For a UTC-aware datetime, use `datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.u
 ---
 
 #### T004 — AWS CloudWatch JSON Parser
-**Status**: [REVIEW]
+**Status**: [DONE]
 **Estimate**: 4 hours
 **Branch**: `feature/T004-cloudwatch-parser`
 **Blocked by**: T003
@@ -417,13 +417,9 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 - [ ] `Parser` protocol exists in `src/logsentinel/parsers/base.py`
 - [ ] `mypy` confirms `CloudWatchParser` satisfies the `Parser` protocol (no explicit `implements` needed — structural subtyping)
 
-> **[FAILED]** — Three criteria fail. Note: the task was never moved to `[REVIEW]` — remember to do that before asking for a review.
->
-> 1. **Criterion 4 — Level mapping tests incomplete.** Only `LogLevel.ERROR` is explicitly asserted. `[INFO]`, `[WARNING]`, `[DEBUG]`, and `[CRITICAL]` are never tested. The fixture has an `[INFO]` event (id 003) but there is no assertion on its level. Add tests for `_extract_level` directly, or add fixture events that cover all five levels.
-> 2. **Criterion 7 — `source` field never verified.** The implementation is correct, but no test ever asserts `entry.source == "/aws/lambda/my-function"`. A criterion that requires testing must be tested.
-> 3. **Criterion 11 — Missing `logGroupName` edge case not tested.** The spec explicitly lists this alongside the empty `logEvents` test. Write a test that passes JSON without `logGroupName` and asserts the entries have `source == "unknown"`.
->
-> Additionally: the timestamp UTC check `assert [entry.timestamp.tzinfo is not None for entry in parsed_file]` is a logic bug — a non-empty list is always truthy, so this assertion never fails regardless of the values inside. Replace with `assert all(entry.timestamp.tzinfo is not None for entry in parsed_file)`.
+> **[DONE]** — All criteria pass. Two things to keep in mind going forward:
+> 1. `_extract_level` and `_extract_request_id` are `@staticmethod` with no return type annotations — mypy strict mode in T009 will flag these. Add `-> LogLevel` and `-> str | None` now to avoid accumulating debt.
+> 2. `assert all([...])` works correctly but creates an intermediate list. The idiomatic form is a generator expression: `assert all(entry.timestamp.tzinfo is not None for entry in parsed_file)`. Minor point.
 
 ---
 
@@ -853,7 +849,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T001 | Initialize Poetry Project | [DONE]   | 2h |
 | T002 | Set Up Project Structure | [DONE]   | 1h |
 | T003 | LogEntry and LogLevel Models | [DONE]   | 3h |
-| T004 | AWS CloudWatch JSON Parser | [FAILED] | 4h |
+| T004 | AWS CloudWatch JSON Parser | [DONE]   | 4h |
 | T005 | CLI Skeleton with Typer | [TODO]   | 3h |
 | T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
 | T007 | Log Level Filter | [TODO]   | 2h |
