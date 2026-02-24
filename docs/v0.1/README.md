@@ -428,7 +428,7 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 ---
 
 #### T005 — CLI Skeleton with Typer
-**Status**: [TODO]
+**Status**: [REVIEW]
 **Estimate**: 3 hours
 **Branch**: `feature/T005-cli-skeleton`
 **Blocked by**: T002
