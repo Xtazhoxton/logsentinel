@@ -266,7 +266,7 @@ For a UTC-aware datetime, use `datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.u
 ---
 
 #### T004 — AWS CloudWatch JSON Parser
-**Status**: [TODO]
+**Status**: [DONE]
 **Estimate**: 4 hours
 **Branch**: `feature/T004-cloudwatch-parser`
 **Blocked by**: T003
@@ -395,7 +395,7 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 - `parse_string` with the same file content returns the same 5 entries (read the fixture file and pass it as a string)
 - The `START` event (id 001) has `level == LogLevel.UNKNOWN`
 - The `[ERROR]` event (id 002) has `level == LogLevel.ERROR`
-- The `[ERROR]` event has `request_id == "req-001"`
+- The `[ERROR]` event has `request_id == None` — applicative logs don't include a `RequestId:` prefix, only Lambda system messages (`START`, `END`, `REPORT`) do
 - The `END` event (id 004) has `request_id == "req-001"`
 - All timestamps are UTC-aware (check `entry.timestamp.tzinfo is not None`)
 - `parse_file` raises `FileNotFoundError` on a non-existent path
@@ -416,6 +416,10 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 - [ ] Tests in `tests/unit/test_cloudwatch_parser.py` cover all criteria above, including edge cases: empty `logEvents` array, missing `logGroupName`
 - [ ] `Parser` protocol exists in `src/logsentinel/parsers/base.py`
 - [ ] `mypy` confirms `CloudWatchParser` satisfies the `Parser` protocol (no explicit `implements` needed — structural subtyping)
+
+> **[DONE]** — All criteria pass. Two things to keep in mind going forward:
+> 1. `_extract_level` and `_extract_request_id` are `@staticmethod` with no return type annotations — mypy strict mode in T009 will flag these. Add `-> LogLevel` and `-> str | None` now to avoid accumulating debt.
+> 2. `assert all([...])` works correctly but creates an intermediate list. The idiomatic form is a generator expression: `assert all(entry.timestamp.tzinfo is not None for entry in parsed_file)`. Minor point.
 
 ---
 
@@ -845,7 +849,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T001 | Initialize Poetry Project | [DONE]   | 2h |
 | T002 | Set Up Project Structure | [DONE]   | 1h |
 | T003 | LogEntry and LogLevel Models | [DONE]   | 3h |
-| T004 | AWS CloudWatch JSON Parser | [TODO]   | 4h |
+| T004 | AWS CloudWatch JSON Parser | [DONE]   | 4h |
 | T005 | CLI Skeleton with Typer | [TODO]   | 3h |
 | T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
 | T007 | Log Level Filter | [TODO]   | 2h |

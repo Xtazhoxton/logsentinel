@@ -1,4 +1,4 @@
-from logsentinel.models import LogLevel, LogEntry
+from logsentinel.models import LogLevel
 from datetime import datetime, timezone
 from dataclasses import replace
 import pytest
