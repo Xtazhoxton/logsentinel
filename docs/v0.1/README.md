@@ -515,6 +515,13 @@ Use `runner.invoke(app, ["version"])` to run commands. The result has `.exit_cod
 - [ ] Passing a non-existent file exits with code 1 and a clear error message
 - [ ] Tests use Typer's `CliRunner` (`from typer.testing import CliRunner`) and cover: version output, invalid file path, invalid format, invalid level value
 
+> **[FAILED]** — Two criteria fail:
+> 1. **Criterion 6 — runtime bug**: `cli/__init__.py` line 29 calls `level.upper()` unconditionally. `level` is `Optional[str]` and defaults to `None`. Every `parse` invocation without `--level` crashes with `AttributeError`. You need to guard the validation block with `if level is not None:`.
+> 2. **Criterion 9 — two broken tests**:
+>    - `test_parse_non_existent_file` passes `["parse tests/fixtures/cloudwatch/log.json"]` as a single string, not separate args. Typer treats the whole string as an unknown command name and exits non-zero — the test passes by accident. Separate the args and point to an actually non-existent path.
+>    - `test_parse_invalid_level` asserts `result.output.strip() is not None`. A string is never `None` — this assertion is trivially true and tests nothing. Assert that the output *contains* a specific error string instead.
+>    - Secondary: line 4 hardcodes an absolute path `/Users/arthur/...`. Use `pathlib.Path(__file__).parent.parent / "fixtures" / "cloudwatch_sample.json"` so the tests work in any environment, including CI.
+
 ---
 
 #### T006 — Wire Parse Command to Parser and Formatter
@@ -850,7 +857,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T002 | Set Up Project Structure | [DONE]   | 1h |
 | T003 | LogEntry and LogLevel Models | [DONE]   | 3h |
 | T004 | AWS CloudWatch JSON Parser | [DONE]   | 4h |
-| T005 | CLI Skeleton with Typer | [TODO]   | 3h |
+| T005 | CLI Skeleton with Typer | [FAILED] | 3h |
 | T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
 | T007 | Log Level Filter | [TODO]   | 2h |
 | T008 | Keyword Search Filter | [TODO]   | 2h |

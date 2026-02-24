@@ -26,8 +26,9 @@ def parse(
     level: Optional[str] = typer.Option(None, "--level"),
     search: Optional[str] = typer.Option(None, "--search")
 ):
-    if level.upper() not in valid_levels:
-        typer.echo("Error: invalid level {}".format(level), err=True)
-        raise typer.Exit(code=1)
+    if level is not None:
+        if level.upper() not in valid_levels:
+            typer.echo("Error: invalid level {}".format(level), err=True)
+            raise typer.Exit(code=1)
     typer.echo("Parsing {} with format {}...".format(file, format.value))
 
