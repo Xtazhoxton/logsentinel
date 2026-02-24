@@ -428,7 +428,7 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 ---
 
 #### T005 — CLI Skeleton with Typer
-**Status**: [TODO]
+**Status**: [DONE]
 **Estimate**: 3 hours
 **Branch**: `feature/T005-cli-skeleton`
 **Blocked by**: T002
@@ -514,6 +514,10 @@ Use `runner.invoke(app, ["version"])` to run commands. The result has `.exit_cod
 - [ ] `--search` is optional, accepts any string
 - [ ] Passing a non-existent file exits with code 1 and a clear error message
 - [ ] Tests use Typer's `CliRunner` (`from typer.testing import CliRunner`) and cover: version output, invalid file path, invalid format, invalid level value
+
+> **[DONE]** — All 9 criteria pass. Two things to carry forward:
+> 1. `format` as a parameter name shadows Python's built-in `format()`. The ruff rules selected in T009 (`E`, `F`, `I`) won't catch this, but it's worth being aware of.
+> 2. The error in `test_parse_invalid_level` is written to stderr (`err=True`). The assertion on `result.output` works because Typer's CliRunner defaults to `mix_stderr=True`. If you ever create a runner with `mix_stderr=False`, that test will fail silently. No action required now — just understand why it works.
 
 ---
 
@@ -850,7 +854,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T002 | Set Up Project Structure | [DONE]   | 1h |
 | T003 | LogEntry and LogLevel Models | [DONE]   | 3h |
 | T004 | AWS CloudWatch JSON Parser | [DONE]   | 4h |
-| T005 | CLI Skeleton with Typer | [TODO]   | 3h |
+| T005 | CLI Skeleton with Typer | [DONE]   | 3h |
 | T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
 | T007 | Log Level Filter | [TODO]   | 2h |
 | T008 | Keyword Search Filter | [TODO]   | 2h |
