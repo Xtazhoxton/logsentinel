@@ -1,0 +1,1 @@
+from logsentinel.formatters.table import TableFormatter

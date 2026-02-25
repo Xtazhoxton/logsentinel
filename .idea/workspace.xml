@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/v0.1/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/v0.1/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/unit/test_cli.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit/test_cli.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,6 +62,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="feature/T006-parse-command" />
+                    <option name="lastUsedInstant" value="1772017835" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="feature/T005-cli-skeleton" />
                     <option name="lastUsedInstant" value="1771953872" />
                   </RecentBranch>
@@ -93,6 +94,9 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="39rGzE1l58OzVNdF4w2k5m9fOp4" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -107,7 +111,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/T005-cli-skeleton",
+    "git-widget-placeholder": "feature/T006-parse-command",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/arthur/Documents/logsentinel",
     "node.js.detected.package.eslint": "true",
@@ -120,6 +124,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/tests/integration" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="python-project" />
@@ -163,7 +172,7 @@
       <updated>1771447037027</updated>
       <workItem from="1771447038058" duration="2089000" />
       <workItem from="1771517277124" duration="54032000" />
-      <workItem from="1771935350798" duration="9797000" />
+      <workItem from="1771935350798" duration="17594000" />
     </task>
     <servers />
   </component>

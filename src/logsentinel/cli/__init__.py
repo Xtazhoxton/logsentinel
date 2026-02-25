@@ -1,8 +1,11 @@
 from pathlib import Path
 from typing import Optional
 import typer
+from rich.console import Console
 from logsentinel import __version__
+from logsentinel.parsers import CloudWatchParser
 from enum import Enum
+from logsentinel.formatters import TableFormatter
 
 app = typer.Typer(name="logsentinel", help="logsentinel CLI tool", add_completion=False)
 
@@ -30,5 +33,19 @@ def parse(
         if level.upper() not in valid_levels:
             typer.echo("Error: invalid level {}".format(level), err=True)
             raise typer.Exit(code=1)
-    typer.echo("Parsing {} with format {}...".format(file, format.value))
+    parser = CloudWatchParser()
+    try:
+        result = parser.parse_file(file)
+    except FileNotFoundError:
+        typer.echo("Error: file {} not found".format(file), err=True)
+        raise typer.Exit(code=1)
+    except ValueError:
+        typer.echo("Error: file {} not valid".format(file), err=True)
+        raise typer.Exit(code=1)
+    if len(result) == 0:
+        typer.echo("No log entries found.")
+        raise typer.Exit(code=0)
+    table = TableFormatter().format(entries=result)
+    Console().print(table)
+
 
