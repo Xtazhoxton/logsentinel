@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from typer.testing import CliRunner
 from logsentinel.cli import app

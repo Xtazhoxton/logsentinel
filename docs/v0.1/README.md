@@ -50,6 +50,7 @@ CloudWatch logs exported to a JSON file look like this:
 ```
 
 Key things to understand:
+
 - `timestamp` is Unix time in **milliseconds** (not seconds)
 - Lambda log messages embed the level as `[LEVEL]` at the start
 - Special Lambda messages (`START`, `END`, `REPORT`) have no level prefix
@@ -66,6 +67,7 @@ Official reference: https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Wor
 ---
 
 #### T001 — Initialize Poetry Project
+
 **Status**: [DONE]
 **Estimate**: 2 hours
 **Branch**: `feature/T001-poetry-setup`
@@ -76,6 +78,7 @@ Poetry is Python's modern dependency and packaging manager. Think of it as npm +
 TypeScript parallel: `package.json` → `pyproject.toml` / `node_modules/` → `.venv/` / `npm install` → `poetry install`
 
 Resources:
+
 - https://python-poetry.org/docs/#installation
 - https://python-poetry.org/docs/basic-usage/
 - https://python-poetry.org/docs/managing-dependencies/ (dependency groups section)
@@ -84,15 +87,17 @@ Resources:
 Initialize a new Poetry project named `logsentinel` targeting Python `^3.13`. Add `typer[all]` and `rich` as main dependencies. Add `pytest` and `pytest-cov` as a dev dependency group (not in main dependencies).
 
 **Acceptance Criteria**
-- [ ] `pyproject.toml` exists with `name = "logsentinel"`, `version = "0.1.0"`, `python = "^3.13"`
-- [ ] `typer[all]` and `rich` are under `[tool.poetry.dependencies]`
-- [ ] `pytest` and `pytest-cov` are under `[tool.poetry.group.dev.dependencies]`
-- [ ] `poetry.lock` is committed
-- [ ] `poetry run python --version` outputs Python 3.13.x
-- [ ] `.gitignore` excludes `.venv/`, `__pycache__/`, `*.pyc`, `.coverage`, `dist/`
-- [ ] `.venv/` is NOT committed
+
+- [ ]  `pyproject.toml` exists with `name = "logsentinel"`, `version = "0.1.0"`, `python = "^3.13"`
+- [ ]  `typer[all]` and `rich` are under `[tool.poetry.dependencies]`
+- [ ]  `pytest` and `pytest-cov` are under `[tool.poetry.group.dev.dependencies]`
+- [ ]  `poetry.lock` is committed
+- [ ]  `poetry run python --version` outputs Python 3.13.x
+- [ ]  `.gitignore` excludes `.venv/`, `__pycache__/`, `*.pyc`, `.coverage`, `dist/`
+- [ ]  `.venv/` is NOT committed
 
 > **[FAILED]** — Three criteria fail:
+>
 > 1. `typer[all]` and `rich` are not under `[tool.poetry.dependencies]`. You used Poetry 2.x format (`[project]` table), which uses different section names than the ones the criteria require. The criteria were written for Poetry 1.x. You need to either reconcile with your Poetry version's actual format, or understand the difference — look up what changed between Poetry 1.x and 2.x, specifically around the `[project]` vs `[tool.poetry]` tables and `[dependency-groups]` vs `[tool.poetry.group.dev.dependencies]`.
 > 2. Same issue for `pytest`/`pytest-cov`: they are in `[dependency-groups]`, not `[tool.poetry.group.dev.dependencies]`.
 > 3. `.gitignore` has a typo on line 2: `__pychache__` → should be `__pycache__`. As written, `__pycache__` directories are **not** being ignored. This will lead to compiled bytecode getting committed.
@@ -100,6 +105,7 @@ Initialize a new Poetry project named `logsentinel` targeting Python `^3.13`. Ad
 ---
 
 #### T002 — Set Up Project Structure
+
 **Status**: [DONE]
 **Estimate**: 1 hour
 **Branch**: `feature/T002-project-structure`
@@ -111,6 +117,7 @@ In Python, a directory becomes a package when it contains an `__init__.py` file 
 TypeScript parallel: `src/logsentinel/__init__.py` ≈ `src/index.ts`
 
 Resources:
+
 - https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/
 - https://python-poetry.org/docs/pyproject/#packages
 
@@ -144,11 +151,12 @@ tests/
 ```
 
 **Acceptance Criteria**
-- [ ] All directories and `__init__.py` files exist as shown
-- [ ] `src/logsentinel/__init__.py` contains `__version__ = "0.1.0"`
-- [ ] `pyproject.toml` has `packages = [{include = "logsentinel", from = "src"}]`
-- [ ] `poetry run python -c "import logsentinel; print(logsentinel.__version__)"` outputs `0.1.0`
-- [ ] `tests/fixtures/` is committed (use `.gitkeep` to track the empty directory)
+
+- [ ]  All directories and `__init__.py` files exist as shown
+- [ ]  `src/logsentinel/__init__.py` contains `__version__ = "0.1.0"`
+- [ ]  `pyproject.toml` has `packages = [{include = "logsentinel", from = "src"}]`
+- [ ]  `poetry run python -c "import logsentinel; print(logsentinel.__version__)"` outputs `0.1.0`
+- [ ]  `tests/fixtures/` is committed (use `.gitkeep` to track the empty directory)
 
 ---
 
@@ -157,6 +165,7 @@ tests/
 ---
 
 #### T003 — LogEntry and LogLevel Models
+
 **Status**: [DONE]
 **Estimate**: 3 hours
 **Branch**: `feature/T003-log-entry-model`
@@ -170,6 +179,7 @@ Python's `Enum` works similarly to TypeScript's `enum` but with more flexibility
 TypeScript parallel: `@dataclass` ≈ TypeScript class with auto-generated constructor / `Enum` ≈ TypeScript `enum`
 
 Resources:
+
 - https://docs.python.org/3/library/dataclasses.html — pay attention to `frozen`, `field`, `compare`, `default_factory`, `__post_init__`
 - https://docs.python.org/3/library/enum.html — read the sections on `IntEnum` and member values
 - https://docs.python.org/3/library/datetime.html — read the section on "aware" vs "naive" datetime objects, and `tzinfo`
@@ -212,6 +222,7 @@ Open the `enum` module docs and read the difference between `Enum` and `IntEnum`
 
 **S2 — Import what you need**
 At the top of `src/logsentinel/models/log_entry.py`, you need three imports:
+
 - `Enum` (or `IntEnum`) from `enum`
 - `dataclass` and `field` from `dataclasses`
 - `datetime` and `timezone` from `datetime`
@@ -236,6 +247,7 @@ Open `src/logsentinel/models/__init__.py` and import `LogEntry` and `LogLevel` s
 
 **S7 — Write the tests**
 Create `tests/unit/test_log_entry.py`. Import `pytest` and your classes. Each test function must start with `test_`. Things to test:
+
 - **Valid creation**: build a `LogEntry` with a UTC-aware datetime and check you can access its fields
 - **Equality ignores excluded fields**: create two entries identical except for `correlation_id` and `raw` — they must be `==`
 - **Equality uses included fields**: create two entries that differ in `message` — they must not be `==`
@@ -245,16 +257,18 @@ Create `tests/unit/test_log_entry.py`. Import `pytest` and your classes. Each te
 For a UTC-aware datetime, use `datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.utc)`.
 
 **Acceptance Criteria**
-- [ ] `LogLevel` is an `Enum` with `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, `UNKNOWN`
-- [ ] `LogLevel` members have integer values reflecting severity (`DEBUG` lowest, `CRITICAL` highest)
-- [ ] `LogEntry` is a frozen dataclass
-- [ ] `correlation_id`, `raw`, `request_id`, and `metadata` are excluded from `__eq__` comparisons
-- [ ] `is_error()` returns `True` only for `ERROR` and `CRITICAL`
-- [ ] `timestamp` is always a timezone-aware `datetime` — the model should make it impossible to create a `LogEntry` with a naive datetime (raise `ValueError`)
-- [ ] Tests are in `tests/unit/test_log_entry.py`
-- [ ] Tests cover: valid creation, equality ignores `correlation_id`/`raw`/`request_id`/`metadata`, `is_error()` for all 6 levels, naive datetime raises `ValueError`
+
+- [ ]  `LogLevel` is an `Enum` with `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, `UNKNOWN`
+- [ ]  `LogLevel` members have integer values reflecting severity (`DEBUG` lowest, `CRITICAL` highest)
+- [ ]  `LogEntry` is a frozen dataclass
+- [ ]  `correlation_id`, `raw`, `request_id`, and `metadata` are excluded from `__eq__` comparisons
+- [ ]  `is_error()` returns `True` only for `ERROR` and `CRITICAL`
+- [ ]  `timestamp` is always a timezone-aware `datetime` — the model should make it impossible to create a `LogEntry` with a naive datetime (raise `ValueError`)
+- [ ]  Tests are in `tests/unit/test_log_entry.py`
+- [ ]  Tests cover: valid creation, equality ignores `correlation_id`/`raw`/`request_id`/`metadata`, `is_error()` for all 6 levels, naive datetime raises `ValueError`
 
 > **[DONE]** — All 8 criteria pass. A few things to be aware of going forward:
+>
 > 1. `UNKNOWN = 60` — this puts UNKNOWN above CRITICAL in integer ordering. The good news: it means UNKNOWN entries automatically pass any severity filter in T007 without needing a special case. The spec says a special case *will* be needed regardless of choice — your value proves that wrong, which is fine. Just be aware in T007 that the "always include UNKNOWN" logic is already handled implicitly.
 > 2. `is_error()` has no `-> bool` return type annotation. When mypy runs in T009 with `strict = true`, it will flag this. Good habit: annotate all method return types now.
 > 3. `from tests.conftest import sample_entry` in the test file is redundant — pytest discovers fixtures from `conftest.py` automatically. Remove this import.
@@ -266,6 +280,7 @@ For a UTC-aware datetime, use `datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.u
 ---
 
 #### T004 — AWS CloudWatch JSON Parser
+
 **Status**: [DONE]
 **Estimate**: 4 hours
 **Branch**: `feature/T004-cloudwatch-parser`
@@ -279,6 +294,7 @@ For timestamps: CloudWatch stores them as Unix **milliseconds**. `datetime.fromt
 TypeScript parallel: `Protocol` ≈ TypeScript `interface` / `pathlib.Path` ≈ Node's `path` module / `json.loads()` ≈ `JSON.parse()`
 
 Resources:
+
 - https://docs.python.org/3/library/pathlib.html — `Path.exists()`, `Path.read_text()`
 - https://docs.python.org/3/library/json.html — `json.loads()`, `json.load()`
 - https://docs.python.org/3/library/re.html — `re.match()`, `re.search()`, capturing groups `(...)`, `match.group(1)`
@@ -345,6 +361,7 @@ Create `src/logsentinel/parsers/cloudwatch.py`. Define the class with all 5 meth
 This method takes a raw message string and returns a `LogLevel`. The pattern to detect is `[LEVEL]` at the very start of the string — for example `[ERROR] 2024-01-15...`.
 
 Steps:
+
 1. Use `re.match()` (not `re.search()` — read the docs to understand the difference) with the pattern `r"^\[(\w+)\]"`
 2. If there is a match, extract the captured group with `match.group(1)` — this gives you the string `"ERROR"`
 3. Try to look up the `LogLevel` member by name: `LogLevel["ERROR"]`. This raises `KeyError` if the string is not a valid member name. Catch that with a `try/except KeyError` and return `LogLevel.UNKNOWN`
@@ -356,6 +373,7 @@ Steps:
 Similar approach. The pattern to find is `RequestId: <value>` anywhere in the message. The value ends at the next whitespace character.
 
 Steps:
+
 1. Use `re.search()` (not `match` — the RequestId can appear anywhere in the message)
 2. Pattern: `r"RequestId:\s+(\S+)"` — `\s+` matches one or more whitespace characters, `(\S+)` captures one or more non-whitespace characters
 3. Return `match.group(1)` if found, `None` otherwise
@@ -364,6 +382,7 @@ Steps:
 This method takes a single event dict (one element from `logEvents`) and the `source` string. It must return a `LogEntry`.
 
 Steps:
+
 1. Get the raw message string from `event["message"]`
 2. Convert the timestamp: `event["timestamp"]` is milliseconds — divide by 1000 and pass to `datetime.fromtimestamp(..., tz=timezone.utc)`
 3. Call `_extract_level(message)` and `_extract_request_id(message)`
@@ -373,6 +392,7 @@ Steps:
 This method takes a JSON string and returns a list of `LogEntry` objects.
 
 Steps:
+
 1. Parse the JSON string with `json.loads(content)`
 2. Check that `"logEvents"` key exists in the parsed dict — if not, raise `ValueError` with a descriptive message like `"Missing 'logEvents' key in CloudWatch JSON"`
 3. Get the source from `data.get("logGroupName", "unknown")` — use `.get()` with a default value so it never raises `KeyError`
@@ -383,6 +403,7 @@ Steps:
 This method takes a `Path` and returns a list of `LogEntry` objects.
 
 Steps:
+
 1. Check if the path exists: `if not path.exists(): raise FileNotFoundError(...)`
 2. Read the file content: `path.read_text(encoding="utf-8")`
 3. Call and return `parse_string(content)`
@@ -391,6 +412,7 @@ Steps:
 
 **S9 — Write the tests**
 Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
+
 - `parse_file` with the fixture returns 5 entries
 - `parse_string` with the same file content returns the same 5 entries (read the fixture file and pass it as a string)
 - The `START` event (id 001) has `level == LogLevel.UNKNOWN`
@@ -403,21 +425,23 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 - `parse_string` returns an empty list for `{"logGroupName": "x", "logEvents": []}`
 
 **Acceptance Criteria**
-- [ ] `parse_file` returns a `list[LogEntry]` from the fixture file
-- [ ] `parse_string` and `parse_file` return identical results for the same content
-- [ ] Timestamps are UTC-aware `datetime` objects (correctly converted from milliseconds)
-- [ ] `[ERROR]`, `[INFO]`, `[WARNING]`, `[DEBUG]`, `[CRITICAL]` are mapped to the correct `LogLevel`
-- [ ] `START`, `END`, `REPORT` messages receive `LogLevel.UNKNOWN`
-- [ ] `request_id` is extracted when `RequestId: <value>` appears in the message
-- [ ] `source` is populated from `logGroupName`
-- [ ] `parse_file` raises `FileNotFoundError` if the path does not exist
-- [ ] `parse_file` raises `ValueError` with a descriptive message if `logEvents` key is missing
-- [ ] `tests/fixtures/cloudwatch_sample.json` is committed
-- [ ] Tests in `tests/unit/test_cloudwatch_parser.py` cover all criteria above, including edge cases: empty `logEvents` array, missing `logGroupName`
-- [ ] `Parser` protocol exists in `src/logsentinel/parsers/base.py`
-- [ ] `mypy` confirms `CloudWatchParser` satisfies the `Parser` protocol (no explicit `implements` needed — structural subtyping)
+
+- [ ]  `parse_file` returns a `list[LogEntry]` from the fixture file
+- [ ]  `parse_string` and `parse_file` return identical results for the same content
+- [ ]  Timestamps are UTC-aware `datetime` objects (correctly converted from milliseconds)
+- [ ]  `[ERROR]`, `[INFO]`, `[WARNING]`, `[DEBUG]`, `[CRITICAL]` are mapped to the correct `LogLevel`
+- [ ]  `START`, `END`, `REPORT` messages receive `LogLevel.UNKNOWN`
+- [ ]  `request_id` is extracted when `RequestId: <value>` appears in the message
+- [ ]  `source` is populated from `logGroupName`
+- [ ]  `parse_file` raises `FileNotFoundError` if the path does not exist
+- [ ]  `parse_file` raises `ValueError` with a descriptive message if `logEvents` key is missing
+- [ ]  `tests/fixtures/cloudwatch_sample.json` is committed
+- [ ]  Tests in `tests/unit/test_cloudwatch_parser.py` cover all criteria above, including edge cases: empty `logEvents` array, missing `logGroupName`
+- [ ]  `Parser` protocol exists in `src/logsentinel/parsers/base.py`
+- [ ]  `mypy` confirms `CloudWatchParser` satisfies the `Parser` protocol (no explicit `implements` needed — structural subtyping)
 
 > **[DONE]** — All criteria pass. Two things to keep in mind going forward:
+>
 > 1. `_extract_level` and `_extract_request_id` are `@staticmethod` with no return type annotations — mypy strict mode in T009 will flag these. Add `-> LogLevel` and `-> str | None` now to avoid accumulating debt.
 > 2. `assert all([...])` works correctly but creates an intermediate list. The idiomatic form is a generator expression: `assert all(entry.timestamp.tzinfo is not None for entry in parsed_file)`. Minor point.
 
@@ -428,6 +452,7 @@ Create `tests/unit/test_cloudwatch_parser.py`. Tests to write:
 ---
 
 #### T005 — CLI Skeleton with Typer
+
 **Status**: [DONE]
 **Estimate**: 3 hours
 **Branch**: `feature/T005-cli-skeleton`
@@ -439,6 +464,7 @@ Typer builds CLIs from Python type hints — no need to declare argument types s
 TypeScript parallel: Typer ≈ a typed `commander.js` where the types drive the argument parser automatically.
 
 Resources:
+
 - https://typer.tiangolo.com/tutorial/ — read "First Steps" through "Commands"
 - https://typer.tiangolo.com/tutorial/options/ — options vs arguments
 - https://typer.tiangolo.com/tutorial/testing/ — CliRunner for testing
@@ -459,6 +485,7 @@ In `pyproject.toml`, add a `[tool.poetry.scripts]` section with one line: `logse
 
 **S2 — Create the Typer app**
 In `src/logsentinel/cli/__init__.py`:
+
 1. Import `typer`
 2. Create the app: `app = typer.Typer(name="logsentinel", help="...", add_completion=False)`. Pick a short description for `help`. `add_completion=False` disables shell autocomplete installation noise.
 
@@ -474,6 +501,7 @@ Before defining the `parse` command, define a small `Enum` for supported formats
 
 **S5 — Add the `parse` command**
 Create a function `def parse(...)` decorated with `@app.command()`. Define these parameters:
+
 - `file: Path = typer.Argument(...)` — a required positional argument. Add `exists=True` to the `typer.Argument()` call so Typer automatically checks if the file exists and exits with code 1 if not. Look up the `exists` parameter in Typer docs.
 - `format: Format = typer.Option(Format.cloudwatch, "--format")` — optional, defaults to `cloudwatch`
 - `level: Optional[str] = typer.Option(None, "--level")` — optional string for now (T006 will make this typed)
@@ -497,6 +525,7 @@ runner = CliRunner()
 ```
 
 Use `runner.invoke(app, ["version"])` to run commands. The result has `.exit_code` and `.output`. Tests to write:
+
 - `version` command outputs `LogSentinel v0.1.0` and exits 0
 - `parse` with a non-existent file exits with code != 0
 - `parse` with `--format invalid_format` exits with code != 0
@@ -505,24 +534,27 @@ Use `runner.invoke(app, ["version"])` to run commands. The result has `.exit_cod
 > Note: When using `exists=True` in `typer.Argument`, Typer handles the missing file check internally — you do not need to test that the file actually runs. Just verify the exit code is non-zero.
 
 **Acceptance Criteria**
-- [ ] `pyproject.toml` has `[tool.poetry.scripts]` with `logsentinel = "logsentinel.cli:app"`
-- [ ] `poetry run logsentinel --help` shows app name, description, and available commands
-- [ ] `poetry run logsentinel version` prints exactly `LogSentinel v0.1.0`
-- [ ] `poetry run logsentinel parse --help` documents `file`, `--format`, `--level`, `--search`
-- [ ] `--format` defaults to `cloudwatch`; an unrecognized format exits with code 1 and an error message
-- [ ] `--level` accepts only `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` (case-insensitive); invalid value exits with code 1
-- [ ] `--search` is optional, accepts any string
-- [ ] Passing a non-existent file exits with code 1 and a clear error message
-- [ ] Tests use Typer's `CliRunner` (`from typer.testing import CliRunner`) and cover: version output, invalid file path, invalid format, invalid level value
+
+- [ ]  `pyproject.toml` has `[tool.poetry.scripts]` with `logsentinel = "logsentinel.cli:app"`
+- [ ]  `poetry run logsentinel --help` shows app name, description, and available commands
+- [ ]  `poetry run logsentinel version` prints exactly `LogSentinel v0.1.0`
+- [ ]  `poetry run logsentinel parse --help` documents `file`, `--format`, `--level`, `--search`
+- [ ]  `--format` defaults to `cloudwatch`; an unrecognized format exits with code 1 and an error message
+- [ ]  `--level` accepts only `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` (case-insensitive); invalid value exits with code 1
+- [ ]  `--search` is optional, accepts any string
+- [ ]  Passing a non-existent file exits with code 1 and a clear error message
+- [ ]  Tests use Typer's `CliRunner` (`from typer.testing import CliRunner`) and cover: version output, invalid file path, invalid format, invalid level value
 
 > **[DONE]** — All 9 criteria pass. Two things to carry forward:
+>
 > 1. `format` as a parameter name shadows Python's built-in `format()`. The ruff rules selected in T009 (`E`, `F`, `I`) won't catch this, but it's worth being aware of.
 > 2. The error in `test_parse_invalid_level` is written to stderr (`err=True`). The assertion on `result.output` works because Typer's CliRunner defaults to `mix_stderr=True`. If you ever create a runner with `mix_stderr=False`, that test will fail silently. No action required now — just understand why it works.
 
 ---
 
 #### T006 — Wire Parse Command to Parser and Formatter
-**Status**: [TODO]
+
+**Status**: [FAILED]
 **Estimate**: 3 hours
 **Branch**: `feature/T006-parse-command`
 **Blocked by**: T004, T005
@@ -533,6 +565,7 @@ Rich is a Python library for terminal formatting — tables, colors, progress ba
 TypeScript parallel: Rich ≈ `chalk` + `cli-table3` combined.
 
 Resources:
+
 - https://rich.readthedocs.io/en/stable/tables.html — `Table`, `add_column`, `add_row`
 - https://rich.readthedocs.io/en/stable/style.html — style strings (`"red"`, `"bold yellow"`, `"dim"`)
 - https://rich.readthedocs.io/en/stable/console.html — `Console`, `console.print()`
@@ -556,6 +589,7 @@ Create `src/logsentinel/formatters/table.py`. Import `LogLevel` from your models
 This method creates a Rich `Table`, adds 4 columns, iterates over entries, and returns the table.
 
 Steps:
+
 1. Create the table: `table = Table(show_header=True, header_style="bold")`
 2. Add columns: `table.add_column("Timestamp")`, `table.add_column("Level")`, etc. Look up the `style` parameter on `add_column` for header styling.
 3. Iterate over entries. For each entry:
@@ -570,6 +604,7 @@ The `format()` method returns a `Table`. But what if entries is empty? You have 
 
 **S4 — Wire the `parse` command**
 Now in the CLI `parse` function, replace the placeholder with real logic:
+
 1. Create a `CloudWatchParser()` and call `parse_file(file)` — wrap in a `try/except` to handle `FileNotFoundError` and `ValueError` gracefully (print error, exit 1)
 2. Check if entries is empty → print message and exit 0
 3. Apply filters if provided (skip for now — T007/T008 will add this)
@@ -579,22 +614,29 @@ Now in the CLI `parse` function, replace the placeholder with real logic:
 
 **S5 — Write the tests**
 For `TableFormatter`:
+
 - Build a small list of `LogEntry` objects manually (you know how to construct them from T003)
 - Call `formatter.format(entries)` and assert the result is a `Table` instance
 - Check that `_level_style(LogLevel.ERROR)` returns `"red"` etc.
 
 For the integration test, create `tests/integration/test_parse_command.py`:
+
 - Use `CliRunner` to invoke `parse tests/fixtures/cloudwatch_sample.json`
 - Assert `exit_code == 0`
 - Assert the output contains `"Timestamp"` (the column header)
 
 **Acceptance Criteria**
-- [ ] `poetry run logsentinel parse tests/fixtures/cloudwatch_sample.json` renders a Rich table with all 5 entries
-- [ ] Table columns: `Timestamp` (ISO 8601), `Level`, `Source`, `Message` (truncated at 80 chars with `…`)
-- [ ] `ERROR`/`CRITICAL` rows styled red, `WARNING` yellow, `INFO` green, `DEBUG` blue, `UNKNOWN` dim
-- [ ] An empty log file (0 events) prints `No log entries found.` instead of an empty table
-- [ ] `TableFormatter` is unit tested with mock `LogEntry` objects
-- [ ] Integration test in `tests/integration/test_parse_command.py` runs the CLI on the fixture and asserts exit code 0
+
+- [ ]  `poetry run logsentinel parse tests/fixtures/cloudwatch_sample.json` renders a Rich table with all 5 entries
+- [ ]  Table columns: `Timestamp` (ISO 8601), `Level`, `Source`, `Message` (truncated at 80 chars with `…`)
+- [ ]  `ERROR`/`CRITICAL` rows styled red, `WARNING` yellow, `INFO` green, `DEBUG` blue, `UNKNOWN` dim
+- [ ]  An empty log file (0 events) prints `No log entries found.` instead of an empty table
+- [ ]  `TableFormatter` is unit tested with mock `LogEntry` objects
+- [ ]  Integration test in `tests/integration/test_parse_command.py` runs the CLI on the fixture and asserts exit code 0
+
+> **[FAILED]** — 5 of 6 criteria pass. One fails:
+>
+> - **Criterion 6**: The integration test is at `tests/unit/test_parse_command.py`, not `tests/integration/test_parse_command.py`. The spec is explicit about the location. Move the file to the correct directory — do not copy it, move it, so there is exactly one test file covering the integration scenario, in the right place.
 
 ---
 
@@ -603,6 +645,7 @@ For the integration test, create `tests/integration/test_parse_command.py`:
 ---
 
 #### T007 — Log Level Filter
+
 **Status**: [TODO]
 **Estimate**: 2 hours
 **Branch**: `feature/T007-level-filter`
@@ -611,6 +654,7 @@ For the integration test, create `tests/integration/test_parse_command.py`:
 TypeScript parallel: `LevelFilter.apply()` ≈ `entries.filter(e => e.level >= minLevel)`
 
 Resources:
+
 - https://docs.python.org/3/library/functions.html#filter — or use a list comprehension: `[e for e in entries if condition]`
 
 **Interface to implement**
@@ -652,6 +696,7 @@ Raise a `typer.BadParameter` or print an error and exit 1 if the string is not a
 
 **S5 — Write the tests**
 Create `tests/unit/test_level_filter.py`. For each test, build a list of entries covering all 6 levels and check what comes out. Tests:
+
 - `min_level=DEBUG` → all entries pass including UNKNOWN
 - `min_level=WARNING` → only WARNING, ERROR, CRITICAL, and UNKNOWN pass; DEBUG and INFO are excluded
 - `min_level=CRITICAL` → only CRITICAL and UNKNOWN pass
@@ -659,15 +704,17 @@ Create `tests/unit/test_level_filter.py`. For each test, build a list of entries
 - List of only UNKNOWN entries → all pass regardless of min_level
 
 **Acceptance Criteria**
-- [ ] `LevelFilter(LogLevel.WARNING).apply(entries)` returns `WARNING`, `ERROR`, and `CRITICAL` entries
-- [ ] Severity order enforced: `DEBUG < INFO < WARNING < ERROR < CRITICAL`
-- [ ] `UNKNOWN` entries are **always** included regardless of the min level
-- [ ] Passing `--level WARNING` to the CLI activates this filter
-- [ ] Unit tests cover all 5 levels as min_level, empty list input, and list of only `UNKNOWN` entries
+
+- [ ]  `LevelFilter(LogLevel.WARNING).apply(entries)` returns `WARNING`, `ERROR`, and `CRITICAL` entries
+- [ ]  Severity order enforced: `DEBUG < INFO < WARNING < ERROR < CRITICAL`
+- [ ]  `UNKNOWN` entries are **always** included regardless of the min level
+- [ ]  Passing `--level WARNING` to the CLI activates this filter
+- [ ]  Unit tests cover all 5 levels as min_level, empty list input, and list of only `UNKNOWN` entries
 
 ---
 
 #### T008 — Keyword Search Filter
+
 **Status**: [TODO]
 **Estimate**: 2 hours
 **Branch**: `feature/T008-keyword-filter`
@@ -676,6 +723,7 @@ Create `tests/unit/test_level_filter.py`. For each test, build a list of entries
 TypeScript parallel: `SearchFilter.apply()` ≈ `entries.filter(e => e.message.toLowerCase().includes(keyword.toLowerCase()))`
 
 Resources:
+
 - https://docs.python.org/3/library/stdtypes.html#str.casefold — better than `lower()` for Unicode
 - https://docs.python.org/3/library/stdtypes.html#str — `in` operator: `"foo" in "foobar"` returns `True`
 
@@ -716,6 +764,7 @@ Both filters can be active simultaneously. Level filter runs first, search filte
 
 **S4 — Write the tests**
 Create `tests/unit/test_search_filter.py`. Tests:
+
 - Case-insensitive match: keyword `"error"` matches entry with message `"[ERROR] something"`
 - Case-sensitive non-match: `keyword="error"`, `case_sensitive=True` does NOT match `"[ERROR] something"` (uppercase)
 - Case-sensitive match: `keyword="ERROR"`, `case_sensitive=True` DOES match
@@ -724,12 +773,13 @@ Create `tests/unit/test_search_filter.py`. Tests:
 - Keyword found in neither message nor metadata — entry is excluded
 
 **Acceptance Criteria**
-- [ ] Searches in both `message` and string values inside `metadata`
-- [ ] Case-insensitive by default; `case_sensitive=True` enforces exact case
-- [ ] Empty keyword string returns all entries unchanged
-- [ ] `--search` CLI option activates this filter
-- [ ] When both `--level` and `--search` are active, level filter runs first
-- [ ] Unit tests cover: case-insensitive match, case-sensitive non-match, empty keyword, keyword in metadata, no match
+
+- [ ]  Searches in both `message` and string values inside `metadata`
+- [ ]  Case-insensitive by default; `case_sensitive=True` enforces exact case
+- [ ]  Empty keyword string returns all entries unchanged
+- [ ]  `--search` CLI option activates this filter
+- [ ]  When both `--level` and `--search` are active, level filter runs first
+- [ ]  Unit tests cover: case-insensitive match, case-sensitive non-match, empty keyword, keyword in metadata, no match
 
 ---
 
@@ -738,6 +788,7 @@ Create `tests/unit/test_search_filter.py`. Tests:
 ---
 
 #### T009 — Code Quality: Tests, Linting, and CI
+
 **Status**: [TODO]
 **Estimate**: 3 hours
 **Branch**: `feature/T009-ci`
@@ -754,6 +805,7 @@ Create `tests/unit/test_search_filter.py`. Tests:
 Why set these up from the start: adding linting and type checking retroactively to an existing codebase is painful and demoralizing. Start with a high bar and maintain it from commit one.
 
 Resources:
+
 - https://docs.pytest.org/en/stable/reference/customize.html — `ini_options`, `addopts`, `pythonpath`
 - https://pytest-cov.readthedocs.io/en/latest/config.html — coverage flags
 - https://docs.astral.sh/ruff/configuration/ — `pyproject.toml` config
@@ -764,6 +816,7 @@ Resources:
 
 **S1 — Configure pytest in `pyproject.toml`**
 Add a `[tool.pytest.ini_options]` section. You need three keys:
+
 - `testpaths = ["tests"]` — tells pytest where to look for tests
 - `pythonpath = ["src"]` — adds `src/` to the Python path so `import logsentinel` works inside test files
 - `addopts = "--cov=src/logsentinel --cov-report=term-missing"` — automatically measures coverage on every test run
@@ -804,6 +857,7 @@ strict = true
 ```
 
 Run `poetry run mypy src/`. Mypy strict mode is demanding — it will report missing return type annotations, possibly-untyped function parameters, and more. Fix each error:
+
 - Missing return type: add `-> ReturnType` to function signatures
 - Missing parameter type: add type annotation to the parameter
 - `dict` without type params: use `dict[str, str]` instead of bare `dict`
@@ -814,16 +868,19 @@ Run `poetry run mypy src/`. Mypy strict mode is demanding — it will report mis
 Create the directory `.github/workflows/` and the file `ci.yml` inside it.
 
 The workflow should:
+
 1. Trigger on `push` to any branch
 2. Run on `ubuntu-latest`
 3. Steps: checkout the repo → set up Python 3.13 → install Poetry → run `poetry install` → run `ruff check src/` → run `mypy src/` → run `poetry run pytest`
 
 Look at the GitHub Actions Python guide linked above for the exact YAML structure. Key things:
+
 - Use `actions/checkout@v4` and `actions/setup-python@v5`
 - Poetry is not installed by default on GitHub runners — you need to install it. The recommended way is `pip install poetry` or the official Poetry installer action. The simplest approach: add a step `run: pip install poetry` before `poetry install`.
 
 **S6 — Verify CI passes**
 Push your branch and navigate to the "Actions" tab on GitHub. If the workflow fails, read the error output step by step. Common CI-specific failures:
+
 - Package not found: the `pythonpath` pytest config was not set
 - Poetry not found: the install step is missing or in the wrong order
 - mypy or ruff errors that were not caught locally (check your local Python version matches)
@@ -831,33 +888,35 @@ Push your branch and navigate to the "Actions" tab on GitHub. If the workflow fa
 Fix all failures until the green checkmark appears on your branch.
 
 **Acceptance Criteria**
-- [ ] `[tool.pytest.ini_options]` is in `pyproject.toml` — no separate `pytest.ini`
-- [ ] `testpaths`, `addopts` (with coverage flags), and `pythonpath = ["src"]` are configured
-- [ ] `poetry run pytest` runs the full test suite and shows a coverage summary
-- [ ] Total coverage is ≥ 80%
-- [ ] `ruff` and `mypy` added as dev dependencies
-- [ ] `[tool.ruff]` configured in `pyproject.toml` — target Python version and selected rule sets
-- [ ] `[tool.mypy]` configured in `pyproject.toml` — strict mode enabled
-- [ ] `poetry run ruff check src/` exits 0
-- [ ] `poetry run mypy src/` exits 0
-- [ ] `.github/workflows/ci.yml` triggers on push to any branch
-- [ ] CI workflow: checkout → Python 3.13 → install Poetry → `poetry install` → ruff → mypy → `poetry run pytest`
-- [ ] CI passes on the `main` branch
+
+- [ ]  `[tool.pytest.ini_options]` is in `pyproject.toml` — no separate `pytest.ini`
+- [ ]  `testpaths`, `addopts` (with coverage flags), and `pythonpath = ["src"]` are configured
+- [ ]  `poetry run pytest` runs the full test suite and shows a coverage summary
+- [ ]  Total coverage is ≥ 80%
+- [ ]  `ruff` and `mypy` added as dev dependencies
+- [ ]  `[tool.ruff]` configured in `pyproject.toml` — target Python version and selected rule sets
+- [ ]  `[tool.mypy]` configured in `pyproject.toml` — strict mode enabled
+- [ ]  `poetry run ruff check src/` exits 0
+- [ ]  `poetry run mypy src/` exits 0
+- [ ]  `.github/workflows/ci.yml` triggers on push to any branch
+- [ ]  CI workflow: checkout → Python 3.13 → install Poetry → `poetry install` → ruff → mypy → `poetry run pytest`
+- [ ]  CI passes on the `main` branch
 
 ---
 
 ## Task Summary
 
-| ID | Title | Status   | Estimate |
-|----|-------|----------|----------|
-| T001 | Initialize Poetry Project | [DONE]   | 2h |
-| T002 | Set Up Project Structure | [DONE]   | 1h |
-| T003 | LogEntry and LogLevel Models | [DONE]   | 3h |
-| T004 | AWS CloudWatch JSON Parser | [DONE]   | 4h |
-| T005 | CLI Skeleton with Typer | [DONE]   | 3h |
-| T006 | Wire Parse Command to Parser and Formatter | [TODO]   | 3h |
-| T007 | Log Level Filter | [TODO]   | 2h |
-| T008 | Keyword Search Filter | [TODO]   | 2h |
-| T009 | Code Quality: Tests, Linting, and CI | [TODO]   | 3h |
+
+| ID   | Title                                      | Status | Estimate |
+| ---- | ------------------------------------------ | ------ | -------- |
+| T001 | Initialize Poetry Project                  | [DONE] | 2h       |
+| T002 | Set Up Project Structure                   | [DONE] | 1h       |
+| T003 | LogEntry and LogLevel Models               | [DONE] | 3h       |
+| T004 | AWS CloudWatch JSON Parser                 | [DONE] | 4h       |
+| T005 | CLI Skeleton with Typer                    | [DONE] | 3h       |
+| T006 | Wire Parse Command to Parser and Formatter | [TODO] | 3h       |
+| T007 | Log Level Filter                           | [TODO] | 2h       |
+| T008 | Keyword Search Filter                      | [TODO] | 2h       |
+| T009 | Code Quality: Tests, Linting, and CI       | [TODO] | 3h       |
 
 **Total estimate**: ~23 hours (~3 days full-time)
