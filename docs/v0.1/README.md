@@ -647,7 +647,7 @@ For the integration test, create `tests/integration/test_parse_command.py`:
 
 #### T007 — Log Level Filter
 
-**Status**: [TODO]
+**Status**: [REVIEW]
 **Estimate**: 2 hours
 **Branch**: `feature/T007-level-filter`
 **Blocked by**: T006
@@ -706,9 +706,9 @@ Create `tests/unit/test_level_filter.py`. For each test, build a list of entries
 
 **Acceptance Criteria**
 
-- [ ]  `LevelFilter(LogLevel.WARNING).apply(entries)` returns `WARNING`, `ERROR`, and `CRITICAL` entries
-- [ ]  Severity order enforced: `DEBUG < INFO < WARNING < ERROR < CRITICAL`
-- [ ]  `UNKNOWN` entries are **always** included regardless of the min level
+- [X]  `LevelFilter(LogLevel.WARNING).apply(entries)` returns `WARNING`, `ERROR`, and `CRITICAL` entries
+- [X]  Severity order enforced: `DEBUG < INFO < WARNING < ERROR < CRITICAL`
+- [X]  `UNKNOWN` entries are **always** included regardless of the min level
 - [ ]  Passing `--level WARNING` to the CLI activates this filter
 - [ ]  Unit tests cover all 5 levels as min_level, empty list input, and list of only `UNKNOWN` entries
 

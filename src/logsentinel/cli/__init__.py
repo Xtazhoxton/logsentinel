@@ -6,6 +6,8 @@ from logsentinel import __version__
 from logsentinel.parsers import CloudWatchParser
 from enum import Enum
 from logsentinel.formatters import TableFormatter
+from logsentinel.filters import LevelFilter
+from logsentinel.models import LogLevel
 
 app = typer.Typer(name="logsentinel", help="logsentinel CLI tool", add_completion=False)
 
@@ -45,6 +47,12 @@ def parse(
     if len(result) == 0:
         typer.echo("No log entries found.")
         raise typer.Exit(code=0)
+
+    if level is not None:
+        level = LogLevel[level.upper()]
+        level_filter = LevelFilter(level)
+        result = level_filter.apply(result)
+
     table = TableFormatter().format(entries=result)
     Console().print(table)
 
