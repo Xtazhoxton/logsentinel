@@ -554,7 +554,7 @@ Use `runner.invoke(app, ["version"])` to run commands. The result has `.exit_cod
 
 #### T006 — Wire Parse Command to Parser and Formatter
 
-**Status**: [FAILED]
+**Status**: [DONE]
 **Estimate**: 3 hours
 **Branch**: `feature/T006-parse-command`
 **Blocked by**: T004, T005
@@ -634,9 +634,10 @@ For the integration test, create `tests/integration/test_parse_command.py`:
 - [ ]  `TableFormatter` is unit tested with mock `LogEntry` objects
 - [ ]  Integration test in `tests/integration/test_parse_command.py` runs the CLI on the fixture and asserts exit code 0
 
-> **[FAILED]** — 5 of 6 criteria pass. One fails:
+> **[DONE]** — All 6 criteria pass. Two things to carry forward:
 >
-> - **Criterion 6**: The integration test is at `tests/unit/test_parse_command.py`, not `tests/integration/test_parse_command.py`. The spec is explicit about the location. Move the file to the correct directory — do not copy it, move it, so there is exactly one test file covering the integration scenario, in the right place.
+> 1. `table.py` has a typo in `formated_timestamp` (single `t`). It doesn't affect functionality now, but mypy strict mode in T009 will not catch it — ruff won't either. Fix it before T009 to avoid noise.
+> 2. The integration test only asserts `exit_code == 0` and `"Timestamp" in output`. That's the minimum required. You could strengthen it in T009 by asserting specific log level names or entry counts appear in the output.
 
 ---
 
@@ -914,7 +915,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T003 | LogEntry and LogLevel Models               | [DONE] | 3h       |
 | T004 | AWS CloudWatch JSON Parser                 | [DONE] | 4h       |
 | T005 | CLI Skeleton with Typer                    | [DONE] | 3h       |
-| T006 | Wire Parse Command to Parser and Formatter | [TODO] | 3h       |
+| T006 | Wire Parse Command to Parser and Formatter | [DONE] | 3h       |
 | T007 | Log Level Filter                           | [TODO] | 2h       |
 | T008 | Keyword Search Filter                      | [TODO] | 2h       |
 | T009 | Code Quality: Tests, Linting, and CI       | [TODO] | 3h       |
