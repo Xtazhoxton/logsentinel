@@ -16,6 +16,16 @@ def test_min_level_critical(entries_all_levels):
     result = level_filter.apply(entries_all_levels)
     assert len(result) == 2
 
+def test_min_level_error(entries_all_levels):
+    level_filter = LevelFilter(LogLevel.ERROR)
+    result = level_filter.apply(entries_all_levels)
+    assert len(result) == 3
+
+def test_min_level_info(entries_all_levels):
+    level_filter = LevelFilter(LogLevel.INFO)
+    result = level_filter.apply(entries_all_levels)
+    assert len(result) == 5
+
 def test_min_level_empty_list():
     level_filter = LevelFilter(LogLevel.CRITICAL)
     result = level_filter.apply([])

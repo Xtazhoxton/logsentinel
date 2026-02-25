@@ -647,7 +647,7 @@ For the integration test, create `tests/integration/test_parse_command.py`:
 
 #### T007 — Log Level Filter
 
-**Status**: [REVIEW]
+**Status**: [FAILED]
 **Estimate**: 2 hours
 **Branch**: `feature/T007-level-filter`
 **Blocked by**: T006
