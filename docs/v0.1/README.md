@@ -721,7 +721,7 @@ Create `tests/unit/test_level_filter.py`. For each test, build a list of entries
 
 #### T008 — Keyword Search Filter
 
-**Status**: [REVIEW]
+**Status**: [DONE]
 **Estimate**: 2 hours
 **Branch**: `feature/T008-keyword-filter`
 **Blocked by**: T006
@@ -780,12 +780,17 @@ Create `tests/unit/test_search_filter.py`. Tests:
 
 **Acceptance Criteria**
 
-- [ ]  Searches in both `message` and string values inside `metadata`
-- [ ]  Case-insensitive by default; `case_sensitive=True` enforces exact case
-- [ ]  Empty keyword string returns all entries unchanged
-- [ ]  `--search` CLI option activates this filter
-- [ ]  When both `--level` and `--search` are active, level filter runs first
-- [ ]  Unit tests cover: case-insensitive match, case-sensitive non-match, empty keyword, keyword in metadata, no match
+- [X]  Searches in both `message` and string values inside `metadata`
+- [X]  Case-insensitive by default; `case_sensitive=True` enforces exact case
+- [X]  Empty keyword string returns all entries unchanged
+- [X]  `--search` CLI option activates this filter
+- [X]  When both `--level` and `--search` are active, level filter runs first
+- [X]  Unit tests cover: case-insensitive match, case-sensitive non-match, empty keyword, keyword in metadata, no match
+
+> **[DONE]** — All 6 criteria pass. Two things to carry forward into T009:
+>
+> 1. `SearchFilter.__init__`, `_matches_message`, `_matches_metadata`, and `apply` all lack return type annotations. mypy strict mode will flag every one of them. Add `-> None`, `-> bool`, `-> bool`, and `-> list[LogEntry]` before running mypy.
+> 2. `apply` returns the original list reference unchanged for an empty keyword (not a copy). This is fine — just be aware that a caller mutating the returned list will also mutate the input when the keyword is empty. No action needed now.
 
 ---
 
@@ -922,7 +927,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T005 | CLI Skeleton with Typer                    | [DONE] | 3h       |
 | T006 | Wire Parse Command to Parser and Formatter | [DONE] | 3h       |
 | T007 | Log Level Filter                           | [DONE] | 2h       |
-| T008 | Keyword Search Filter                      | [TODO] | 2h       |
+| T008 | Keyword Search Filter                      | [DONE] | 2h       |
 | T009 | Code Quality: Tests, Linting, and CI       | [TODO] | 3h       |
 
 **Total estimate**: ~23 hours (~3 days full-time)

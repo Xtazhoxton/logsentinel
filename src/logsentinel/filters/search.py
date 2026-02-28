@@ -1,7 +1,7 @@
 from logsentinel.models import LogEntry
 
 class SearchFilter:
-    def __init__(self, keyword: str, case_sensitive: bool = False):
+    def __init__(self, keyword: str, case_sensitive: bool = False) -> None:
         self.keyword = keyword
         self.case_sensitive = case_sensitive
 
