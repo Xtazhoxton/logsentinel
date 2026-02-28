@@ -647,7 +647,7 @@ For the integration test, create `tests/integration/test_parse_command.py`:
 
 #### T007 — Log Level Filter
 
-**Status**: [TODO]
+**Status**: [DONE]
 **Estimate**: 2 hours
 **Branch**: `feature/T007-level-filter`
 **Blocked by**: T006
@@ -706,11 +706,16 @@ Create `tests/unit/test_level_filter.py`. For each test, build a list of entries
 
 **Acceptance Criteria**
 
-- [ ]  `LevelFilter(LogLevel.WARNING).apply(entries)` returns `WARNING`, `ERROR`, and `CRITICAL` entries
-- [ ]  Severity order enforced: `DEBUG < INFO < WARNING < ERROR < CRITICAL`
-- [ ]  `UNKNOWN` entries are **always** included regardless of the min level
-- [ ]  Passing `--level WARNING` to the CLI activates this filter
-- [ ]  Unit tests cover all 5 levels as min_level, empty list input, and list of only `UNKNOWN` entries
+- [X]  `LevelFilter(LogLevel.WARNING).apply(entries)` returns `WARNING`, `ERROR`, and `CRITICAL` entries
+- [X]  Severity order enforced: `DEBUG < INFO < WARNING < ERROR < CRITICAL`
+- [X]  `UNKNOWN` entries are **always** included regardless of the min level
+- [X]  Passing `--level WARNING` to the CLI activates this filter
+- [X]  Unit tests cover all 5 levels as min_level, empty list input, and list of only `UNKNOWN` entries
+
+> **[DONE]** — All 5 criteria pass. Two things to carry forward into T009:
+>
+> 1. In the CLI `parse` function, `level` is reassigned from `str | None` to `LogLevel` on line 52. mypy strict mode will flag this as a type error — consider using a separate variable name (e.g. `min_level`).
+> 2. `LevelFilter.apply` has no return type annotation (`-> list[LogEntry]`). mypy strict will flag this.
 
 ---
 
@@ -916,7 +921,7 @@ Fix all failures until the green checkmark appears on your branch.
 | T004 | AWS CloudWatch JSON Parser                 | [DONE] | 4h       |
 | T005 | CLI Skeleton with Typer                    | [DONE] | 3h       |
 | T006 | Wire Parse Command to Parser and Formatter | [DONE] | 3h       |
-| T007 | Log Level Filter                           | [TODO] | 2h       |
+| T007 | Log Level Filter                           | [DONE] | 2h       |
 | T008 | Keyword Search Filter                      | [TODO] | 2h       |
 | T009 | Code Quality: Tests, Linting, and CI       | [TODO] | 3h       |
 
