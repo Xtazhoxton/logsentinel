@@ -6,7 +6,7 @@ from logsentinel import __version__
 from logsentinel.parsers import CloudWatchParser
 from enum import Enum
 from logsentinel.formatters import TableFormatter
-from logsentinel.filters import LevelFilter
+from logsentinel.filters import LevelFilter, SearchFilter
 from logsentinel.models import LogLevel
 
 app = typer.Typer(name="logsentinel", help="logsentinel CLI tool", add_completion=False)
@@ -52,6 +52,9 @@ def parse(
         level = LogLevel[level.upper()]
         level_filter = LevelFilter(level)
         result = level_filter.apply(result)
+
+    if search is not None:
+        result = SearchFilter(search).apply(result)
 
     table = TableFormatter().format(entries=result)
     Console().print(table)

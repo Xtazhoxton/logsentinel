@@ -90,3 +90,27 @@ def expected_entries_min_critical(entries_all_levels):
         for entry in entries_all_levels
         if entry.level in (LogLevel.CRITICAL, LogLevel.UNKNOWN)
     ]
+
+
+@pytest.fixture
+def entries_for_search_filter(make_log_entry):
+    metadata_match_entry = LogEntry(
+        timestamp=datetime(2024, 1, 15, 10, 1, 0, tzinfo=timezone.utc),
+        level=LogLevel.INFO,
+        message="Background task completed",
+        source="/aws/lambda/my-function",
+        raw="[INFO] Background task completed",
+        metadata={"detail": "Database timeout on replica"},
+    )
+
+    no_match_entry = make_log_entry(
+        level=LogLevel.DEBUG,
+        message="Heartbeat check passed",
+        minute_offset=2,
+    )
+
+    return [
+        make_log_entry(level=LogLevel.ERROR, message="[ERROR] something", minute_offset=0),
+        metadata_match_entry,
+        no_match_entry,
+    ]
