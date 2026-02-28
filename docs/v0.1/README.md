@@ -721,7 +721,7 @@ Create `tests/unit/test_level_filter.py`. For each test, build a list of entries
 
 #### T008 — Keyword Search Filter
 
-**Status**: [TODO]
+**Status**: [REVIEW]
 **Estimate**: 2 hours
 **Branch**: `feature/T008-keyword-filter`
 **Blocked by**: T006
