@@ -8,7 +8,7 @@ from rich.console import Console
 from logsentinel import __version__
 from logsentinel.filters import LevelFilter, SearchFilter
 from logsentinel.formatters import TableFormatter
-from logsentinel.models import LogLevel, LogEntry
+from logsentinel.models import LogLevel
 from logsentinel.parsers import CloudWatchParser
 
 app = typer.Typer(name="logsentinel", help="logsentinel CLI tool", add_completion=False)
@@ -60,5 +60,4 @@ def parse(
 
     table = TableFormatter().format(entries=result)
     Console().print(table)
-
 
