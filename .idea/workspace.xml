@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/filters/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/filters/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,12 +20,19 @@
       <list>
         <option value="Python Unit Test" />
         <option value="Python Script" />
+        <option value="GitHub Workflow" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Xtazhoxton"
+  }
+}]]></component>
   <component name="GitToolBoxStore">
     <option name="branchesCleanupHistory">
       <BranchesCleanupHistory>
@@ -65,6 +69,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="feature/T009-ci" />
+                    <option name="lastUsedInstant" value="1772365211" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="feature/T008-keyword-filter" />
                     <option name="lastUsedInstant" value="1772292393" />
                   </RecentBranch>
@@ -80,10 +88,6 @@
                     <option name="branchName" value="feature/T005-cli-skeleton" />
                     <option name="lastUsedInstant" value="1771953872" />
                   </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="feature/T004-cloudwatch-parser" />
-                    <option name="lastUsedInstant" value="1771875815" />
-                  </RecentBranch>
                 </list>
               </option>
               <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
@@ -93,6 +97,19 @@
       </RecentBranches>
     </option>
   </component>
+  <component name="GithubProjectSettings">
+    <option name="branchProtectionPatterns">
+      <list>
+        <option value="main" />
+      </list>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:Xtazhoxton/logsentinel.git",
+    "accountId": "49a9b7a7-648e-4e4a-885e-cd70d83543a8"
+  }
+}]]></component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -118,7 +135,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/T008-keyword-filter",
+    "git-widget-placeholder": "feature/T009-ci",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/arthur/Documents/logsentinel",
     "node.js.detected.package.eslint": "true",
@@ -126,7 +143,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -135,6 +152,11 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/tests/integration" />
     </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="pip install poetry" />
+    </option>
   </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
@@ -179,7 +201,7 @@
       <updated>1771447037027</updated>
       <workItem from="1771447038058" duration="2089000" />
       <workItem from="1771517277124" duration="54032000" />
-      <workItem from="1771935350798" duration="38804000" />
+      <workItem from="1771935350798" duration="48573000" />
     </task>
     <servers />
   </component>

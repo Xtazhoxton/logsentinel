@@ -1,5 +1,6 @@
-from logsentinel.models import LogLevel, LogEntry
 from rich.table import Table
+
+from logsentinel.models import LogEntry, LogLevel
 
 STYLES = {
     LogLevel.ERROR: "red",

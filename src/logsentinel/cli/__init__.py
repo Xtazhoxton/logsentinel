@@ -1,13 +1,15 @@
+from enum import Enum
 from pathlib import Path
 from typing import Optional
+
 import typer
 from rich.console import Console
+
 from logsentinel import __version__
-from logsentinel.parsers import CloudWatchParser
-from enum import Enum
-from logsentinel.formatters import TableFormatter
 from logsentinel.filters import LevelFilter, SearchFilter
+from logsentinel.formatters import TableFormatter
 from logsentinel.models import LogLevel
+from logsentinel.parsers import CloudWatchParser
 
 app = typer.Typer(name="logsentinel", help="logsentinel CLI tool", add_completion=False)
 
@@ -17,7 +19,7 @@ class Format(str, Enum):
 
 
 @app.command()
-def version():
+def version() -> None:
     typer.echo("LogSentinel v{}".format(__version__))
 
 
@@ -30,7 +32,7 @@ def parse(
     format: Format = typer.Option(Format.cloudwatch, "--format"),
     level: Optional[str] = typer.Option(None, "--level"),
     search: Optional[str] = typer.Option(None, "--search")
-):
+) -> None:
     if level is not None:
         if level.upper() not in valid_levels:
             typer.echo("Error: invalid level {}".format(level), err=True)
@@ -49,8 +51,8 @@ def parse(
         raise typer.Exit(code=0)
 
     if level is not None:
-        level = LogLevel[level.upper()]
-        level_filter = LevelFilter(level)
+        min_level = LogLevel[level.upper()]
+        level_filter = LevelFilter(min_level)
         result = level_filter.apply(result)
 
     if search is not None:
@@ -58,5 +60,4 @@ def parse(
 
     table = TableFormatter().format(entries=result)
     Console().print(table)
-
 
