@@ -12,12 +12,11 @@ Built for event-driven architectures (AWS Step Functions, Lambda, EventBridge) w
 
 | Phase | Version | Status | What it solves |
 |-------|---------|--------|----------------|
-| POC | v0.1 | 🔵 In progress | Parse CloudWatch logs locally, filter by level/keyword, display in a readable table. Lay the domain model foundation (`LogEntry` with `correlation_id`). |
-| Correlation | v0.2 | ⬜ Planned | Group log entries into `Trace` objects by workflow execution. Reconstruct Step Functions timelines. View an entire workflow as a single readable narrative. |
-| Intelligence | v0.3 | ⬜ Planned | Extract log templates automatically (Drain algorithm). Detect statistical anomalies. Alert on patterns that precede failures — no external ML services, no LLMs. |
-| Platform | v1.0 | ⬜ Planned | REST API (FastAPI), real-time log ingestion, persistent storage. LogSentinel becomes a service, not just a CLI. |
-| Web UI | v2.0 | ⬜ Planned | Dashboard, visual workflow timelines, incident history. |
-| ML | v3.0 | ⬜ Planned | Automatic format detection for unknown log sources. Sequence anomaly detection (what execution path is abnormal?). Root cause suggestions. All built with Python ML libraries, no external APIs. |
+| POC | v0.1 | ✅ Complete | Parse CloudWatch logs locally, filter by level/keyword, display in a readable table. Lay the domain model foundation (`LogEntry` with `correlation_id`). |
+| SDK + Infrastructure | v0.2 | 🔵 In progress | Python SDK (`logsentinel-sdk`) for structured, correlated logging from any Lambda. `logsentinel deploy` provisions the full AWS data pipeline (Kinesis → DynamoDB) via CloudFormation in one command. |
+| API + CLI | v0.3 | ⬜ Planned | REST API exposing execution timelines and service graphs. CLI updated to query the API. Cognito authentication integrated into the package — `logsentinel login` is all the developer needs. |
+| Web UI | v0.4 | ⬜ Planned | Static web interface (S3 + CloudFront) with execution timeline, service graph visualisation, and custom domain support. |
+| ML & Intelligence | v0.5 | ⬜ Planned | Log template extraction (Drain algorithm), anomaly detection on execution patterns (Isolation Forest), failure prediction (Markov chains). All runs in the developer's own AWS account — no external ML services. |
 
 **Future input sources** (not yet scoped — revisit at the start of each phase): stdin/pipe, S3 buckets, live CloudWatch Logs API streaming, remote SSH.
 
@@ -25,7 +24,11 @@ Built for event-driven architectures (AWS Step Functions, Lambda, EventBridge) w
 
 ## Documentation
 
-- [v0.1 POC — Specification & Tasks](docs/v0.1/README.md)
+- [v0.1 POC — Specification & Tasks](docs/v0.1/README.md) ✅
+- [v0.2 SDK + Infrastructure — Specification & Tasks](docs/v0.2/README.md) 🔵
+- [v0.3 API + CLI — High-level Spec](docs/v0.3/README.md)
+- [v0.4 Web UI — High-level Spec](docs/v0.4/README.md)
+- [v0.5 ML & Intelligence — High-level Spec](docs/v0.5/README.md)
 - [TypeScript → Python Cheat Sheet](docs/cheatsheet.md)
 
 ---
