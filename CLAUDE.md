@@ -1,59 +1,64 @@
-# CLAUDE.md
+# CLAUDE.md — logsentinel-cli
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
----
-
-## Your Role — Read This Every Time
-
-You are the **manager and teacher** on this project. Your rules:
-
-- **Never write implementation code.** Class/function signatures and pseudocode are acceptable. If you catch yourself writing a function body with real logic, stop.
-- Be strict. A task with 9/10 acceptance criteria passing is `[FAILED]`. Challenge shortcuts and bad practices — do not be agreeable for the sake of it.
-- When the developer asks for help, give resources and direction, not solutions.
-- Manage time: each task has an estimate. If something is taking significantly longer, flag it and offer to break the task down.
-- After completing reviews, always state clearly which task to work on next.
+For project-level guidance (role, architecture, task workflow, roadmap), see `../CLAUDE.md`.
 
 ---
 
-## Project: LogSentinel
+## This Repository
 
-A log analysis tool built progressively to learn Python. Developer background: intermediate TypeScript, CS student. Full-time availability.
+CLI tool and infrastructure deploy command for LogSentinel.
 
-**Current version: v0.1 POC** — CLI tool, local file input, AWS CloudWatch JSON format.
-
-Full roadmap and architecture: see `README.md`.
-All v0.1 tasks and specifications: see `docs/v0.1/README.md`.
+**GitHub**: https://github.com/Xtazhoxton/logsentinel
+**Branch convention**: `feature/T{id}-short-description`
 
 ---
 
-## GitHub Repository
+## Tech Stack
 
-**URL**: `https://github.com/Xtazhoxton/logsentinel`
+| Tool | Purpose |
+|------|---------|
+| Python 3.13 | Language |
+| Poetry | Dependency management + virtual env |
+| Typer | CLI framework (type-hint driven, built on Click) |
+| Rich | Terminal output (tables, colors) |
+| pytest + pytest-cov | Testing + coverage |
+| ruff | Linting + formatting (replaces flake8 + black + isort) |
+| mypy | Static type checking |
+| moto | AWS service mocking for unit tests |
 
-Branch convention: `feature/T{id}-short-description` — example: `feature/T001-poetry-setup`
+## Package Structure
 
----
+```
+logsentinel-cli/
+├── src/
+│   └── logsentinel/
+│       ├── models/       — data structures only (LogEntry, LogLevel)
+│       ├── parsers/      — raw input → list[LogEntry]
+│       ├── filters/      — list[LogEntry] → filtered list
+│       ├── formatters/   — list[LogEntry] → output
+│       ├── cli/          — argument wiring only
+│       ├── api/          — API handlers (Lambda functions, v0.3+)
+│       ├── infra/        — CloudFormation stack + deploy logic
+│       └── utils/        — pure shared helpers
+└── tests/
+    ├── unit/             — mirrors src/ structure
+    ├── integration/      — full CLI command tests
+    └── fixtures/         — static sample log files
+```
 
-## Task Review Workflow
+## Testing Rules
 
-At the start of every session, before anything else:
+- Every module has a corresponding test file
+- Every CLI command has at least one integration test
+- No test touches the filesystem directly — use `tmp_path` or `tests/fixtures/`
+- Coverage must stay ≥ 80%
 
-1. Read `docs/v0.1/README.md` (or the current version's README) and collect every task marked `[REVIEW]`
-2. For each `[REVIEW]` task, use the GitHub URL above to find the corresponding branch or PR and read the relevant source files and test files
-3. Check every acceptance criterion listed under that task — one by one
-4. If **all** criteria pass → change status to `[DONE]`, leave 2–3 lines of feedback
-5. If **any** criterion fails → change status to `[FAILED]`, list exactly which criteria failed and why, give a directional hint (not the solution)
-6. After all reviews, state clearly what task is next and why
+## Common Commands
 
----
-
-## Task Statuses
-
-| Status | Meaning |
-|--------|---------|
-| `[TODO]` | Not started |
-| `[IN PROGRESS]` | Developer is actively working on it |
-| `[REVIEW]` | Developer considers it complete — needs review |
-| `[DONE]` | Reviewed and accepted |
-| `[FAILED]` | Reviewed and rejected — see feedback below the task |
+```bash
+poetry run logsentinel --help
+poetry run pytest
+poetry run pytest --cov=logsentinel --cov-report=term-missing
+poetry run ruff check src/
+poetry run mypy src/
+```
