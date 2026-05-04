@@ -6,6 +6,7 @@ import pytest
 from logsentinel.models import LogEntry, LogLevel
 from logsentinel.parsers import CloudWatchParser
 
+
 @pytest.fixture
 def sample_entry():
     return LogEntry(

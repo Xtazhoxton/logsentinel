@@ -1,7 +1,9 @@
-from logsentinel.models import LogLevel
-from datetime import datetime, timezone
 from dataclasses import replace
+from datetime import datetime, timezone
+
 import pytest
+
+from logsentinel.models import LogLevel
 
 
 def test_creation_with_valid_fields(sample_entry):

@@ -1,0 +1,208 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Logsentinel data pipeline"
+
+Parameters:
+  Env:
+    Type: String
+    Default: dev
+  RetentionDays:
+    Type: Number
+    Default: 90
+
+Resources:
+  KinesisStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: !Sub "logsentinel-stream-${Env}"
+      StreamModeDetails:
+        StreamMode: ON_DEMAND
+
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "logsentinel-artifacts-${AWS::AccountId}"
+
+  ArchiveBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "logsentinel-archive-${AWS::AccountId}"
+
+  DynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "logsentinel-events-${Env}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: sentinel_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+        - AttributeName: gsi_pk
+          AttributeType: S
+        - AttributeName: gsi_sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: sentinel_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: EXECUTION_INDEX
+          KeySchema:
+            - AttributeName: gsi_pk
+              KeyType: HASH
+            - AttributeName: gsi_sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: TRUE
+
+  ConsumerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: logsentinel-consumer-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole
+      Policies:
+        - PolicyName: DynamoAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !GetAtt DynamoTable.Arn
+
+  FirehoseRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: logsentinel-firehose-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: firehose.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: FirehoseAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:GetRecords
+                  - kinesis:GetShardIterator
+                  - kinesis:DescribeStream
+                  - kinesis:ListShards
+                Resource: !GetAtt KinesisStream.Arn
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                Resource: !Sub "${ArchiveBucket.Arn}/*"
+
+  SDKPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: LogSentinelSDKPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:PutRecord
+              - kinesis:PutRecords
+            Resource: !GetAtt KinesisStream.Arn
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/logsentinel/*"
+
+  ConsumerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "logsentinel-consumer-${Env}"
+      Runtime: python3.13
+      Handler: handler.handler
+      Role: !GetAtt ConsumerRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactsBucket
+        S3Key: consumer.zip
+      Environment:
+        Variables:
+          LOGSENTINEL_TABLE_NAME: !Ref DynamoTable
+          LOGSENTINEL_RETENTION_DAYS: !Ref RetentionDays
+
+  KinesisToConsumer:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt KinesisStream.Arn
+      FunctionName: !GetAtt ConsumerLambda.Arn
+      StartingPosition: LATEST
+      BatchSize: 100
+
+  FirehoseDelivery:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: !Sub "logsentinel-firehose-${Env}"
+      DeliveryStreamType: KinesisStreamAsSource
+      KinesisStreamSourceConfiguration:
+        KinesisStreamARN: !GetAtt KinesisStream.Arn
+        RoleARN: !GetAtt FirehoseRole.Arn
+      S3DestinationConfiguration:
+        BucketARN: !GetAtt ArchiveBucket.Arn
+        RoleARN: !GetAtt FirehoseRole.Arn
+        Prefix: "logs/"
+
+  DLQQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "logsentinel-dlq-${Env}"
+      MessageRetentionPeriod: 1209600
+
+  AlertsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "logsentinel-alerts-${Env}"
+
+  StreamNameParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /logsentinel/stream-name
+      Type: String
+      Value: !Ref KinesisStream
+
+  TableNameParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /logsentinel/table-name
+      Type: String
+      Value: !Ref DynamoTable
+
+  DLQUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /logsentinel/dlq-url
+      Type: String
+      Value: !Ref DLQQueue
+
+  RetentionDaysParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /logsentinel/retention-days
+      Type: String
+      Value: !Ref RetentionDays
