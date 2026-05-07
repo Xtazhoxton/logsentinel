@@ -1,11 +1,12 @@
+import pathlib
+import zipfile
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
-import botocore
+import boto3
 import typer
-from botocore.exceptions import NoCredentialsError
-from jmespath.ast import identity
+from botocore import exceptions as botocore_exceptions
 from rich.console import Console
 
 from logsentinel import __version__
@@ -13,9 +14,6 @@ from logsentinel.filters import LevelFilter, SearchFilter
 from logsentinel.formatters import TableFormatter
 from logsentinel.models import LogLevel
 from logsentinel.parsers import CloudWatchParser
-import boto3
-import zipfile, pathlib
-from botocore import exceptions as botocore_exceptions
 
 app = typer.Typer(name="logsentinel", help="logsentinel CLI tool", add_completion=False)
 
@@ -43,7 +41,6 @@ def deploy(
     try:
         identity = sts.get_caller_identity()
         account_id = identity["Account"]  # "123456789012"
-        user_arn = identity["Arn"]
     except botocore_exceptions.NoCredentialsError:
         typer.echo("No AWS credentials found. Run: aws configure", err=True)
         raise typer.Exit(code=1)
@@ -61,14 +58,17 @@ def deploy(
             if region != "us-east-1":
                 kwargs["CreateBucketConfiguration"] = {"LocationConstraint": region}
             s3.create_bucket(**kwargs)
+            typer.echo("LogSentinel bucket {} created.".format(bucket_name))
             pass
         else:
             raise
 
+    typer.echo("Packaging LogSentinel artifacts into zip file")
     handler_path = pathlib.Path(__file__).parent.parent / "infra" / "consumer" / "handler.py"
     zip_path = pathlib.Path("/tmp/consumer.zip")
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.write(handler_path, arcname="handler.py")
+    typer.echo("Zip file created, now uploading to S3 {}".format(bucket_name))
 
     s3.upload_file(str(zip_path), bucket_name, "consumer.zip")
     typer.echo("LogSentinel bucket {} uploaded".format(f"s3://{bucket_name}/consumer.zip"))
@@ -77,47 +77,58 @@ def deploy(
     cf = boto3.client("cloudformation", region_name=region)
 
     try:
-        response = cf.describe_stacks(StackName=stack_name)
-        stack = response["Stacks"][0]
+        typer.echo("Stack creation starting")
+        cf.describe_stacks(StackName=stack_name)
         try:
+            typer.echo("Stack already exists, updating the stack")
             cf.update_stack(
                 StackName=stack_name,
-                TemplateBody=open("src/logsentinel/infra/stack.yaml").read(),
+                TemplateBody=open(
+                    pathlib.Path(__file__).parent.parent / "infra" / "stack.yaml"
+                ).read(),
                 Parameters=[
                     {"ParameterKey": "Env", "ParameterValue": env},
-                    {"ParameterKey": "RetentionDays", "ParameterValue": retention_days},
-                ],
-                Capabilities=["CAPABILITY_NAMED_IAM"]
-            )
-            cf.get_waiter("stack_update_complete").wait(StackName=stack_name)
-        except botocore.exceptions.ClientError as e:
-            if "No updates are to be performed" in str(e):
-                typer.echo("No updates are to be performed, stack already up tp date")
-
-            else:
-                raise
-
-    except botocore.exceptions.ClientError as e:
-        if "does not exist" in str(e):
-            cf.create_stack(
-                StackName=stack_name,
-                TemplateBody=open("src/logsentinel/infra/stack.yaml").read(),
-                Parameters=[
-                    {"ParameterKey": "Env", "ParameterValue": env},
-                    {"ParameterKey": "RetentionDays", "ParameterValue": retention_days},
+                    {"ParameterKey": "RetentionDays", "ParameterValue": str(retention_days)},
+                    {
+                        "ParameterKey": "ArtifactsBucketName",
+                        "ParameterValue": bucket_name,
+                    },
                 ],
                 Capabilities=["CAPABILITY_NAMED_IAM"],
             )
-            cf.get_waiter("stack_create_complete").wait(StackName="logsentinel-dev")
+            typer.echo("Stack updated, deployment in progress")
+            cf.get_waiter("stack_update_complete").wait(StackName=stack_name)
+            typer.echo("Stack deployed")
+        except botocore_exceptions.ClientError as e:
+            if "No updates are to be performed" in str(e):
+                typer.echo("No updates are to be performed, stack already up tp date")
+            else:
+                raise
+
+    except botocore_exceptions.ClientError as e:
+        if "does not exist" in str(e):
+            cf.create_stack(
+                StackName=stack_name,
+                TemplateBody=open(pathlib.Path(__file__).parent.parent / "infra" / "stack.yaml").read(),
+                Parameters=[
+                    {"ParameterKey": "Env", "ParameterValue": env},
+                    {"ParameterKey": "RetentionDays", "ParameterValue": str(retention_days)},
+                    {"ParameterKey": "ArtifactsBucketName", "ParameterValue": bucket_name},
+                ],
+                Capabilities=["CAPABILITY_NAMED_IAM"],
+            )
+            typer.echo("Stack deployed, deployment in progress")
+            cf.get_waiter("stack_create_complete").wait(StackName=stack_name)
+            typer.echo("Stack deployed")
             pass
         else:
             raise
 
-    response = cf.describe_stacks_ressources(StackName=stack_name)
-    for ressource in response["StacksResources"]:
-        typer.echo(ressource["ResourceType"])
-        typer.echo(ressource["PhysicalResourceId"])
-        typer.echo(ressource["ResourceStatus"])
+    response = cf.describe_stacks_resources(StackName=stack_name)
+    for resource in response["StacksResources"]:
+        typer.echo(resource["ResourceType"])
+        typer.echo(resource["PhysicalResourceId"])
+        typer.echo(resource["ResourceStatus"])
 
 @app.command()
 def parse(

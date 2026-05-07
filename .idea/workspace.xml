@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/infra/consumer/handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/infra/consumer/handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/infra/stack.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/infra/stack.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +70,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="feature/t007-add-logsentinel-deploy" />
+                    <option name="lastUsedInstant" value="1778163579" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="feature/t006-implement-kinesis-handler" />
                     <option name="lastUsedInstant" value="1778154822" />
                   </RecentBranch>
@@ -87,10 +88,6 @@
                   <RecentBranch>
                     <option name="branchName" value="feature/T007-level-filter" />
                     <option name="lastUsedInstant" value="1772058429" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="feature/T006-parse-command" />
-                    <option name="lastUsedInstant" value="1772017835" />
                   </RecentBranch>
                 </list>
               </option>
@@ -139,7 +136,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/t006-implement-kinesis-handler",
+    "git-widget-placeholder": "feature/t007-add-logsentinel-deploy",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/arthur/Documents/logsentinel-project/logsentinel-cli",
     "node.js.detected.package.eslint": "true",
@@ -211,7 +208,7 @@
       <workItem from="1772725902100" duration="6694000" />
       <workItem from="1773857648032" duration="1226000" />
       <workItem from="1777788243847" duration="1050000" />
-      <workItem from="1777872964632" duration="41572000" />
+      <workItem from="1777872964632" duration="42805000" />
     </task>
     <servers />
   </component>
