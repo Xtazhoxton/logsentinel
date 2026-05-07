@@ -2,10 +2,16 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
+import os
 
 from logsentinel.models import LogEntry, LogLevel
 from logsentinel.parsers import CloudWatchParser
 
+
+def pytest_configure(config):
+    os.environ.setdefault("AWS_ACCESS_KEY_ID", "test")
+    os.environ.setdefault("AWS_SECRET_ACCESS_KEY", "test")
+    os.environ.setdefault("AWS_DEFAULT_REGION", "eu-west-1")
 
 @pytest.fixture
 def sample_entry():

@@ -13,6 +13,7 @@ packages = [
 python = ">=3.13,<4.0"
 typer = { extras = ["all"], version = "*" }
 rich = "*"
+boto3 = "^1.43.2"
 
 [tool.pytest.ini_options]
 testpaths =["tests"]
@@ -24,6 +25,7 @@ pytest = "*"
 pytest-cov = "*"
 ruff = "^0.15.4"
 mypy = "^1.19.1"
+moto = {version = ">=5.1.21,<6.0.0", extras = ["dynamodb", "kinesis", "s3", "sqs", "ssm"]}
 
 [tool.poetry.scripts]
 logsentinel = "logsentinel.cli:app"
@@ -33,10 +35,12 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.13"
 strict = true
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.9.0"]
