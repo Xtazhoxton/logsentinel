@@ -8,6 +8,7 @@ import boto3
 import typer
 from botocore import exceptions as botocore_exceptions
 from rich.console import Console
+from rich.table import Table
 
 from logsentinel import __version__
 from logsentinel.filters import LevelFilter, SearchFilter
@@ -37,98 +38,116 @@ def deploy(
         region: str = typer.Option("eu-west-1", "--region", help="AWS region"),
 ) -> None:
     """Provision the LogSentinel AWS data pipeline via CloudFormation."""
+    console = Console()
+
+    # --- Credentials check ---
     sts = boto3.client("sts", region_name=region)
     try:
         identity = sts.get_caller_identity()
-        account_id = identity["Account"]  # "123456789012"
+        account_id = identity["Account"]
+        console.print(f"[bold]Account:[/bold] {account_id}  [bold]Region:[/bold] {region}")
     except botocore_exceptions.NoCredentialsError:
         typer.echo("No AWS credentials found. Run: aws configure", err=True)
         raise typer.Exit(code=1)
 
+    # --- Artifacts bucket ---
     s3 = boto3.client("s3", region_name=region)
     bucket_name = f"logsentinel-artifacts-{account_id}"
     try:
         s3.head_bucket(Bucket=bucket_name)
-        typer.echo("LogSentinel bucket {} found. Creation omitted".format(account_id))
+        console.print(f"[dim]Artifacts bucket already exists:[/dim] {bucket_name}")
     except botocore_exceptions.ClientError as e:
         code = e.response["Error"]["Code"]
         if code in ("404", "NoSuchBucket"):
-            typer.echo("LogSentinel bucket {} not found. Creation is needed".format(account_id))
+            console.print(f"Creating artifacts bucket [bold]{bucket_name}[/bold]...")
             kwargs: dict[str, Any] = {"Bucket": bucket_name}
             if region != "us-east-1":
                 kwargs["CreateBucketConfiguration"] = {"LocationConstraint": region}
             s3.create_bucket(**kwargs)
-            typer.echo("LogSentinel bucket {} created.".format(bucket_name))
-            pass
+            console.print("[green]✓[/green] Bucket created")
         else:
             raise
 
-    typer.echo("Packaging LogSentinel artifacts into zip file")
+    # --- Package Lambda ---
+    console.print("Packaging consumer Lambda...")
     handler_path = pathlib.Path(__file__).parent.parent / "infra" / "consumer" / "handler.py"
     zip_path = pathlib.Path("/tmp/consumer.zip")
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.write(handler_path, arcname="handler.py")
-    typer.echo("Zip file created, now uploading to S3 {}".format(bucket_name))
 
+    # --- Upload to S3 ---
+    console.print(f"Uploading to [bold]s3://{bucket_name}/consumer.zip[/bold]...")
     s3.upload_file(str(zip_path), bucket_name, "consumer.zip")
-    typer.echo("LogSentinel bucket {} uploaded".format(f"s3://{bucket_name}/consumer.zip"))
+    console.print("[green]✓[/green] Upload complete")
 
+    # --- CloudFormation ---
     stack_name = f"logsentinel-{env}"
     cf = boto3.client("cloudformation", region_name=region)
+    template_body = (pathlib.Path(__file__).parent.parent / "infra" / "stack.yaml").read_text()
+    parameters = [
+        {"ParameterKey": "Env", "ParameterValue": env},
+        {"ParameterKey": "RetentionDays", "ParameterValue": str(retention_days)},
+        {"ParameterKey": "ArtifactsBucketName", "ParameterValue": bucket_name},
+    ]
 
     try:
-        typer.echo("Stack creation starting")
         cf.describe_stacks(StackName=stack_name)
+        console.print(f"Stack [bold]{stack_name}[/bold] exists — applying updates...")
         try:
-            typer.echo("Stack already exists, updating the stack")
             cf.update_stack(
                 StackName=stack_name,
-                TemplateBody=open(
-                    pathlib.Path(__file__).parent.parent / "infra" / "stack.yaml"
-                ).read(),
-                Parameters=[
-                    {"ParameterKey": "Env", "ParameterValue": env},
-                    {"ParameterKey": "RetentionDays", "ParameterValue": str(retention_days)},
-                    {
-                        "ParameterKey": "ArtifactsBucketName",
-                        "ParameterValue": bucket_name,
-                    },
-                ],
+                TemplateBody=template_body,
+                Parameters=parameters,
                 Capabilities=["CAPABILITY_NAMED_IAM"],
             )
-            typer.echo("Stack updated, deployment in progress")
+            console.print("Waiting for update to complete...")
             cf.get_waiter("stack_update_complete").wait(StackName=stack_name)
-            typer.echo("Stack deployed")
+            console.print("[green]✓[/green] Stack updated")
         except botocore_exceptions.ClientError as e:
             if "No updates are to be performed" in str(e):
-                typer.echo("No updates are to be performed, stack already up tp date")
+                console.print("[dim]Stack is already up to date — nothing to do.[/dim]")
             else:
                 raise
 
     except botocore_exceptions.ClientError as e:
         if "does not exist" in str(e):
+            console.print(f"Creating stack [bold]{stack_name}[/bold]...")
             cf.create_stack(
                 StackName=stack_name,
-                TemplateBody=open(pathlib.Path(__file__).parent.parent / "infra" / "stack.yaml").read(),
-                Parameters=[
-                    {"ParameterKey": "Env", "ParameterValue": env},
-                    {"ParameterKey": "RetentionDays", "ParameterValue": str(retention_days)},
-                    {"ParameterKey": "ArtifactsBucketName", "ParameterValue": bucket_name},
-                ],
+                TemplateBody=template_body,
+                Parameters=parameters,
                 Capabilities=["CAPABILITY_NAMED_IAM"],
             )
-            typer.echo("Stack deployed, deployment in progress")
+            console.print("Waiting for stack creation to complete...")
             cf.get_waiter("stack_create_complete").wait(StackName=stack_name)
-            typer.echo("Stack deployed")
-            pass
+            console.print("[green]✓[/green] Stack created")
         else:
             raise
 
-    response = cf.describe_stacks_resources(StackName=stack_name)
-    for resource in response["StacksResources"]:
-        typer.echo(resource["ResourceType"])
-        typer.echo(resource["PhysicalResourceId"])
-        typer.echo(resource["ResourceStatus"])
+    # --- Resources summary ---
+    response = cf.describe_stack_resources(StackName=stack_name)
+    table = Table(title=f"Stack: {stack_name}", show_lines=False)
+    table.add_column("Resource Type", style="cyan", no_wrap=True)
+    table.add_column("Logical ID", style="white")
+    table.add_column("Physical ID", style="dim", overflow="fold")
+    table.add_column("Status", no_wrap=True)
+
+    for resource in response["StackResources"]:
+        status = resource["ResourceStatus"]
+        if "COMPLETE" in status and "DELETE" not in status:
+            status_style = "green"
+        elif "FAILED" in status:
+            status_style = "red"
+        else:
+            status_style = "yellow"
+        table.add_row(
+            resource["ResourceType"],
+            resource["LogicalResourceId"],
+            resource.get("PhysicalResourceId", "—"),
+            f"[{status_style}]{status}[/{status_style}]",
+        )
+
+    console.print(table)
 
 @app.command()
 def parse(
