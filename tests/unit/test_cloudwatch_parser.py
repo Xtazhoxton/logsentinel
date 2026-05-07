@@ -1,7 +1,9 @@
+from pathlib import Path
+
+import pytest
+
 from logsentinel.models import LogLevel
 from logsentinel.parsers import CloudWatchParser
-from pathlib import Path
-import pytest
 
 path = Path(__file__).resolve().parent.parent / "fixtures" / "cloudwatch_sample.json"
 parser = CloudWatchParser()

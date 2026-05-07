@@ -1,6 +1,9 @@
-from typer.testing import CliRunner
-from logsentinel.cli import app
 from pathlib import Path
+
+from typer.testing import CliRunner
+
+from logsentinel.cli import app
+
 runner = CliRunner()
 path = Path(__file__).parent.parent / "fixtures" / "cloudwatch_sample.json"
 

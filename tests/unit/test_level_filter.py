@@ -1,6 +1,7 @@
 from logsentinel.filters import LevelFilter
 from logsentinel.models import LogLevel
 
+
 def test_min_level_debug(entries_all_levels):
     level_filter = LevelFilter(LogLevel.DEBUG)
     result = level_filter.apply(entries_all_levels)

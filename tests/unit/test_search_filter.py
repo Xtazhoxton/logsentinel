@@ -1,5 +1,6 @@
 from logsentinel.filters import SearchFilter
 
+
 def test_search_insensitive_match(entries_for_search_filter):
     result = SearchFilter("error").apply(entries_for_search_filter)
     assert len(result) == 1

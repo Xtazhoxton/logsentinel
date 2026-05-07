@@ -1,8 +1,8 @@
-import pytest
-from pathlib import Path
-from logsentinel.formatters import TableFormatter
+from datetime import UTC, datetime
+
 from rich.table import Table
-from datetime import datetime, UTC
+
+from logsentinel.formatters import TableFormatter
 from logsentinel.models.log_entry import LogEntry, LogLevel
 
 entries = [
