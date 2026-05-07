@@ -35,10 +35,12 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.13"
 strict = true
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.9.0"]

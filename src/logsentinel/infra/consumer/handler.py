@@ -1,6 +1,11 @@
-import base64, json, os, datetime, boto3
+import base64
+import datetime
+import json
+import os
 from datetime import timezone
+from typing import Any
 
+import boto3
 from boto3.dynamodb.types import TypeSerializer
 from botocore.exceptions import ClientError
 
@@ -9,7 +14,7 @@ TABLE_NAME = os.environ.get("LOGSENTINEL_TABLE_NAME", "logsentinel-events")
 RETENTION_DAYS = int(os.environ.get("LOGSENTINEL_RETENTION_DAYS", "90"))
 serializer = TypeSerializer()
 
-def handler(event: dict, context: object) -> None:
+def handler(event: dict[str, Any], context: object) -> None:
     for record in event["Records"]:
         try:
             raw_record = record["kinesis"]["data"]
@@ -62,7 +67,7 @@ def handler(event: dict, context: object) -> None:
                 else:
                     raise e
             update_expression = "ADD services :svc"
-            expression_attribute_values = {":svc": {"SS": [payload["service"]]}}
+            expression_attribute_values: dict[str, Any] = {":svc": {"SS": [payload["service"]]}}
             if payload["level"] == "ERROR" or payload["level"] == "CRITICAL":
                 update_expression = "SET has_error = :true ADD services :svc"
                 expression_attribute_values.update({":true": {"BOOL": True}})
