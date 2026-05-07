@@ -8,6 +8,8 @@ Parameters:
   RetentionDays:
     Type: Number
     Default: 90
+  ArtifactsBucketName:
+    Type: String
 
 Resources:
   KinesisStream:
@@ -17,10 +19,6 @@ Resources:
       StreamModeDetails:
         StreamMode: ON_DEMAND
 
-  ArtifactsBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "logsentinel-artifacts-${AWS::AccountId}"
 
   ArchiveBucket:
     Type: AWS::S3::Bucket
@@ -140,7 +138,7 @@ Resources:
       Handler: handler.handler
       Role: !GetAtt ConsumerRole.Arn
       Code:
-        S3Bucket: !Ref ArtifactsBucket
+        S3Bucket: !Ref ArtifactsBucketName
         S3Key: consumer.zip
       Environment:
         Variables:
