@@ -1,9 +1,14 @@
+import pathlib
+import zipfile
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
+import boto3
 import typer
+from botocore import exceptions as botocore_exceptions
 from rich.console import Console
+from rich.table import Table
 
 from logsentinel import __version__
 from logsentinel.filters import LevelFilter, SearchFilter
@@ -25,6 +30,124 @@ def version() -> None:
 
 valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
 
+
+@app.command()
+def deploy(
+        env: str = typer.Option("dev", "-e", "--env", help="Deployment environment"),
+        retention_days: int = typer.Option(90, "--retention-days", help="Retention days"),
+        region: str = typer.Option("eu-west-1", "--region", help="AWS region"),
+) -> None:
+    """Provision the LogSentinel AWS data pipeline via CloudFormation."""
+    console = Console()
+
+    # --- Credentials check ---
+    sts = boto3.client("sts", region_name=region)
+    try:
+        identity = sts.get_caller_identity()
+        account_id = identity["Account"]
+        console.print(f"[bold]Account:[/bold] {account_id}  [bold]Region:[/bold] {region}")
+    except botocore_exceptions.NoCredentialsError:
+        typer.echo("No AWS credentials found. Run: aws configure", err=True)
+        raise typer.Exit(code=1)
+
+    # --- Artifacts bucket ---
+    s3 = boto3.client("s3", region_name=region)
+    bucket_name = f"logsentinel-artifacts-{account_id}"
+    try:
+        s3.head_bucket(Bucket=bucket_name)
+        console.print(f"[dim]Artifacts bucket already exists:[/dim] {bucket_name}")
+    except botocore_exceptions.ClientError as e:
+        code = e.response["Error"]["Code"]
+        if code in ("404", "NoSuchBucket"):
+            console.print(f"Creating artifacts bucket [bold]{bucket_name}[/bold]...")
+            kwargs: dict[str, Any] = {"Bucket": bucket_name}
+            if region != "us-east-1":
+                kwargs["CreateBucketConfiguration"] = {"LocationConstraint": region}
+            s3.create_bucket(**kwargs)
+            console.print("[green]✓[/green] Bucket created")
+        else:
+            raise
+
+    # --- Package Lambda ---
+    console.print("Packaging consumer Lambda...")
+    handler_path = pathlib.Path(__file__).parent.parent / "infra" / "consumer" / "handler.py"
+    zip_path = pathlib.Path("/tmp/consumer.zip")
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(handler_path, arcname="handler.py")
+
+    # --- Upload to S3 ---
+    console.print(f"Uploading to [bold]s3://{bucket_name}/consumer.zip[/bold]...")
+    s3.upload_file(str(zip_path), bucket_name, "consumer.zip")
+    console.print("[green]✓[/green] Upload complete")
+
+    # --- CloudFormation ---
+    stack_name = f"logsentinel-{env}"
+    cf = boto3.client("cloudformation", region_name=region)
+    template_body = (pathlib.Path(__file__).parent.parent / "infra" / "stack.yaml").read_text()
+    parameters = [
+        {"ParameterKey": "Env", "ParameterValue": env},
+        {"ParameterKey": "RetentionDays", "ParameterValue": str(retention_days)},
+        {"ParameterKey": "ArtifactsBucketName", "ParameterValue": bucket_name},
+    ]
+
+    try:
+        cf.describe_stacks(StackName=stack_name)
+        console.print(f"Stack [bold]{stack_name}[/bold] exists — applying updates...")
+        try:
+            cf.update_stack(
+                StackName=stack_name,
+                TemplateBody=template_body,
+                Parameters=parameters,
+                Capabilities=["CAPABILITY_NAMED_IAM"],
+            )
+            console.print("Waiting for update to complete...")
+            cf.get_waiter("stack_update_complete").wait(StackName=stack_name)
+            console.print("[green]✓[/green] Stack updated")
+        except botocore_exceptions.ClientError as e:
+            if "No updates are to be performed" in str(e):
+                console.print("[dim]Stack is already up to date — nothing to do.[/dim]")
+            else:
+                raise
+
+    except botocore_exceptions.ClientError as e:
+        if "does not exist" in str(e):
+            console.print(f"Creating stack [bold]{stack_name}[/bold]...")
+            cf.create_stack(
+                StackName=stack_name,
+                TemplateBody=template_body,
+                Parameters=parameters,
+                Capabilities=["CAPABILITY_NAMED_IAM"],
+            )
+            console.print("Waiting for stack creation to complete...")
+            cf.get_waiter("stack_create_complete").wait(StackName=stack_name)
+            console.print("[green]✓[/green] Stack created")
+        else:
+            raise
+
+    # --- Resources summary ---
+    response = cf.describe_stack_resources(StackName=stack_name)
+    table = Table(title=f"Stack: {stack_name}", show_lines=False)
+    table.add_column("Resource Type", style="cyan", no_wrap=True)
+    table.add_column("Logical ID", style="white")
+    table.add_column("Physical ID", style="dim", overflow="fold")
+    table.add_column("Status", no_wrap=True)
+
+    for resource in response["StackResources"]:
+        status = resource["ResourceStatus"]
+        if "COMPLETE" in status and "DELETE" not in status:
+            status_style = "green"
+        elif "FAILED" in status:
+            status_style = "red"
+        else:
+            status_style = "yellow"
+        table.add_row(
+            resource["ResourceType"],
+            resource["LogicalResourceId"],
+            resource.get("PhysicalResourceId", "—"),
+            f"[{status_style}]{status}[/{status_style}]",
+        )
+
+    console.print(table)
 
 @app.command()
 def parse(
