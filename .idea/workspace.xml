@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -208,7 +209,7 @@
       <workItem from="1772725902100" duration="6694000" />
       <workItem from="1773857648032" duration="1226000" />
       <workItem from="1777788243847" duration="1050000" />
-      <workItem from="1777872964632" duration="43513000" />
+      <workItem from="1777872964632" duration="51976000" />
     </task>
     <servers />
   </component>
