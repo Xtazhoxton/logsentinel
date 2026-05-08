@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="572ccfbd-4e3d-4899-ac19-0e10a0d6aa27" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/tests/integration/infra/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/integration/infra/conftest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/integration/infra/test_deploy.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/logsentinel/cli/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +74,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="feature/t008-infra-test" />
+                    <option name="lastUsedInstant" value="1778237040" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="feature/t007-add-logsentinel-deploy" />
                     <option name="lastUsedInstant" value="1778163579" />
                   </RecentBranch>
@@ -84,10 +92,6 @@
                   <RecentBranch>
                     <option name="branchName" value="feature/T008-keyword-filter" />
                     <option name="lastUsedInstant" value="1772292393" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="feature/T007-level-filter" />
-                    <option name="lastUsedInstant" value="1772058429" />
                   </RecentBranch>
                 </list>
               </option>
@@ -136,7 +140,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/t007-add-logsentinel-deploy",
+    "git-widget-placeholder": "feature/t008-infra-test",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/arthur/Documents/logsentinel-project/logsentinel-cli",
     "node.js.detected.package.eslint": "true",
@@ -208,7 +212,7 @@
       <workItem from="1772725902100" duration="6694000" />
       <workItem from="1773857648032" duration="1226000" />
       <workItem from="1777788243847" duration="1050000" />
-      <workItem from="1777872964632" duration="43513000" />
+      <workItem from="1777872964632" duration="52280000" />
     </task>
     <servers />
   </component>
