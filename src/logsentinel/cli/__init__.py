@@ -97,7 +97,7 @@ def deploy(
             cf.update_stack(
                 StackName=stack_name,
                 TemplateBody=template_body,
-                Parameters=parameters,
+                Parameters=parameters,  # type: ignore[arg-type]
                 Capabilities=["CAPABILITY_NAMED_IAM"],
             )
             console.print("Waiting for update to complete...")
@@ -115,7 +115,7 @@ def deploy(
             cf.create_stack(
                 StackName=stack_name,
                 TemplateBody=template_body,
-                Parameters=parameters,
+                Parameters=parameters,  # type: ignore[arg-type]
                 Capabilities=["CAPABILITY_NAMED_IAM"],
             )
             console.print("Waiting for stack creation to complete...")

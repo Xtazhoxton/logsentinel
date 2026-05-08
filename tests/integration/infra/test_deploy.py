@@ -89,6 +89,22 @@ def test_records_appear_in_dynamodb(localstack_check):
 
 
 @pytest.mark.localstack
+@pytest.mark.skip(
+    reason="Firehose → S3 delivery requires LocalStack Pro. Tested manually in T010."
+)
+def test_firehose_delivers_to_s3(localstack_check):
+    pass
+
+
+@pytest.mark.localstack
+@pytest.mark.skip(
+    reason="DLQ test requires Lambda trigger (python3.13 non supporté par LocalStack 3.8) — testé en T010 sur AWS réel."
+)
+def test_dlq_receives_record_on_lambda_failure(localstack_check):
+    pass
+
+
+@pytest.mark.localstack
 def test_gsi_queryable_and_ttl_set(localstack_check):
     dynamodb = boto3.client(
         "dynamodb", endpoint_url="http://localhost:4566", region_name="eu-west-1"
