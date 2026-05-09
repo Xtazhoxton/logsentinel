@@ -19,6 +19,7 @@ boto3 = "^1.43.2"
 testpaths =["tests"]
 pythonpath =["src"]
 addopts = "--cov=src/logsentinel --cov-report=term-missing"
+markers = ["localstack: tests that require LocalStack — start with: docker run --rm -d -p 4566:4566 localstack/localstack"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
@@ -26,6 +27,9 @@ pytest-cov = "*"
 ruff = "^0.15.4"
 mypy = "^1.19.1"
 moto = {version = ">=5.1.21,<6.0.0", extras = ["dynamodb", "kinesis", "s3", "sqs", "ssm"]}
+requests = "^2.33.1"
+boto3-stubs = {extras = ["cloudformation", "dynamodb", "kinesis", "s3", "sqs", "ssm", "sts", "iam", "lambda"], version = "^1.43.6"}
+logsentinel-sdk = {path = "../logsentinel-sdk"}
 
 [tool.poetry.scripts]
 logsentinel = "logsentinel.cli:app"
