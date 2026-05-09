@@ -48,7 +48,9 @@ files = [
 botocore-stubs = "*"
 mypy-boto3-cloudformation = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"cloudformation\""}
 mypy-boto3-dynamodb = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"dynamodb\""}
+mypy-boto3-iam = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"iam\""}
 mypy-boto3-kinesis = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"kinesis\""}
+mypy-boto3-lambda = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"lambda\""}
 mypy-boto3-s3 = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"s3\""}
 mypy-boto3-sqs = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"sqs\""}
 mypy-boto3-ssm = {version = ">=1.43.0,<1.44.0", optional = true, markers = "extra == \"ssm\""}
@@ -1147,6 +1149,23 @@ files = [
 ]
 
 [[package]]
+name = "logsentinel-sdk"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = ">=3.13,<4.0"
+groups = ["dev"]
+files = []
+develop = false
+
+[package.dependencies]
+boto3 = "^1.42.61"
+
+[package.source]
+type = "directory"
+url = "../logsentinel-sdk"
+
+[[package]]
 name = "markdown-it-py"
 version = "4.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -1414,6 +1433,18 @@ files = [
 ]
 
 [[package]]
+name = "mypy-boto3-iam"
+version = "1.43.2"
+description = "Type annotations for boto3 IAM 1.43.2 service generated with mypy-boto3-builder 8.12.0"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "mypy_boto3_iam-1.43.2-py3-none-any.whl", hash = "sha256:64caf97b481c89ee4e5fea98af0c78097c7cf96344d179c8ebd41818244a0e59"},
+    {file = "mypy_boto3_iam-1.43.2.tar.gz", hash = "sha256:bb0325ab5e61c5a4627759ffe9fa6fbf4d227146f0b4858555f7a0289622f50a"},
+]
+
+[[package]]
 name = "mypy-boto3-kinesis"
 version = "1.43.0"
 description = "Type annotations for boto3 Kinesis 1.43.0 service generated with mypy-boto3-builder 8.12.0"
@@ -1423,6 +1454,18 @@ groups = ["dev"]
 files = [
     {file = "mypy_boto3_kinesis-1.43.0-py3-none-any.whl", hash = "sha256:8c2b38d2b1f598c58d9e4196becb591189cfaa3e4854609933afaa313348cd0b"},
     {file = "mypy_boto3_kinesis-1.43.0.tar.gz", hash = "sha256:5511a9c67a110e1d7b4af7c7834987c2509284cc0aae4c2a3c7b572681652575"},
+]
+
+[[package]]
+name = "mypy-boto3-lambda"
+version = "1.43.0"
+description = "Type annotations for boto3 Lambda 1.43.0 service generated with mypy-boto3-builder 8.12.0"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "mypy_boto3_lambda-1.43.0-py3-none-any.whl", hash = "sha256:847b8f12b74f881c743464cd0010a04e2b21201b39ac92b1040c6cd276bac4e6"},
+    {file = "mypy_boto3_lambda-1.43.0.tar.gz", hash = "sha256:a58de26b5c13be54deab31723ee9ab7aaa922be1dfbd093dc3a4ca12cc853157"},
 ]
 
 [[package]]
@@ -1984,4 +2027,4 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "1dd2df8f72bc05cb77292001a34537baf549c98ea0bab32aff1c60464925f431"
+content-hash = "8a4cfb7110880565bb07fbedf39f290aac1e9535594a4d00ab56ad60d2c7d21e"

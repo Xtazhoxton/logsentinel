@@ -1,4 +1,8 @@
+import importlib.util
+import io
+import json
 import pathlib
+import time
 import zipfile
 from enum import Enum
 from pathlib import Path
@@ -148,6 +152,112 @@ def deploy(
         )
 
     console.print(table)
+
+
+@app.command()
+def e2e(
+        deploy: bool = typer.Option(False, "--deploy", is_flag=True, help="Deploy the test lambda function"),
+        run: bool = typer.Option(False, "--run", is_flag=True, help="Run the query to accept the e2e or not"),
+        teardown: bool = typer.Option(False, "--teardown", is_flag=True, help="Teardown the lambda function"),
+        env: str = typer.Option("dev", "--env", help="AWS Environment"),
+        region: str = typer.Option("eu-west-1", "--region", help="AWS Region"),
+) -> None:
+    """Run the E2E acceptance test on real AWS."""
+    if deploy:
+        iam = boto3.client("iam", region_name=region)
+        assume_role_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "lambda.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+
+        sts_client = boto3.client("sts", region_name=region)
+        account_id = sts_client.get_caller_identity()["Account"]
+        sdk_policy_arn = f"arn:aws:iam::{account_id}:policy/LogSentinelSDKPolicy"
+
+        try:
+            role = iam.create_role(
+                RoleName="logsentinel-e2e-role",
+                AssumeRolePolicyDocument=json.dumps(assume_role_policy),
+            )
+            role_arn = role["Role"]["Arn"]
+            iam.attach_role_policy(
+                RoleName="logsentinel-e2e-role",
+                PolicyArn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            )
+            iam.attach_role_policy(
+                RoleName="logsentinel-e2e-role",
+                PolicyArn=sdk_policy_arn
+            )
+        except iam.exceptions.EntityAlreadyExistsException:
+            role_arn = iam.get_role(RoleName="logsentinel-e2e-role")["Role"]["Arn"]
+
+        buffer = io.BytesIO()
+        handler_path = pathlib.Path(__file__).parent.parent.parent.parent / "tests" / "e2e" / "test_lambda" / "handler.py"
+        spec = importlib.util.find_spec("logsentinel_sdk")
+        if spec is None or spec.submodule_search_locations is None:
+            typer.echo("logsentinel_sdk not installed — run: poetry add --group dev ../logsentinel-sdk", err=True)
+            raise typer.Exit(code=1)
+        sdk_dir = pathlib.Path(spec.submodule_search_locations[0])
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.write(handler_path, arcname="handler.py")
+            for file in sdk_dir.rglob("*.py"):
+                zf.write(file, arcname=f"logsentinel_sdk/{file.relative_to(sdk_dir)}")
+        buffer.seek(0)
+        zip_bytes = buffer.read()
+
+        time.sleep(10)
+        lambda_client = boto3.client("lambda", region_name=region)
+        try:
+            lambda_client.create_function(
+                FunctionName="logsentinel-e2e-test",
+                Runtime="python3.13",
+                Role=role_arn,
+                Handler="handler.handler",
+                Code={"ZipFile": zip_bytes},
+            )
+        except lambda_client.exceptions.ResourceConflictException:
+            lambda_client.update_function_code(FunctionName="logsentinel-e2e-test", ZipFile=zip_bytes)
+
+    elif run:
+        lambda_client = boto3.client("lambda", region_name=region)
+        response = lambda_client.invoke(
+            FunctionName="logsentinel-e2e-test",
+            InvocationType="RequestResponse",
+        )
+        payload = json.loads(response["Payload"].read())
+        sentinel_id = payload["sentinel_id"]
+
+
+        dynamodb = boto3.client("dynamodb", region_name=region)
+        for _ in range(10):
+            result = dynamodb.query(
+                TableName=f"logsentinel-events-{env}",
+                KeyConditionExpression="sentinel_id = :sid",
+                ExpressionAttributeValues={":sid": {"S": sentinel_id}},
+            )
+            if len(result["Items"]) >= 5:
+                typer.echo("✓ All 5 records found in DynamoDB")
+                raise typer.Exit(code=0)
+            time.sleep(1)
+        typer.echo("✗ Timeout: records not found after 10s", err=True)
+        raise typer.Exit(code=1)
+
+    elif teardown:
+        lambda_client = boto3.client("lambda", region_name=region)
+        lambda_client.delete_function(FunctionName="logsentinel-e2e-test")
+        typer.echo("✓ Test Lambda deleted")
+
+    else:
+        typer.echo("Specify --deploy, --run, or --teardown", err=True)
+        raise typer.Exit(code=1)
 
 @app.command()
 def parse(
